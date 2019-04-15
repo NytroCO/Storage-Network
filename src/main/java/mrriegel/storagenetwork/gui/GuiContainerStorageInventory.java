@@ -11,16 +11,14 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import mrriegel.storagenetwork.StorageNetwork;
+import mrriegel.storagenetwork.data.EnumSortType;
 import mrriegel.storagenetwork.jei.JeiHooks;
 import mrriegel.storagenetwork.jei.JeiSettings;
-import mrriegel.storagenetwork.network.ClearRecipeMessage;
 import mrriegel.storagenetwork.network.InsertMessage;
 import mrriegel.storagenetwork.network.RequestMessage;
 import mrriegel.storagenetwork.network.SortMessage;
 import mrriegel.storagenetwork.registry.PacketRegistry;
 import mrriegel.storagenetwork.util.UtilTileEntity;
-import mrriegel.storagenetwork.util.data.EnumSortType;
-import mrriegel.storagenetwork.util.data.StackWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -37,31 +35,33 @@ import net.minecraftforge.oredict.OreDictionary;
 
 /**
  * Base class for Request table inventory and Remote inventory
- * 
+ *
  *
  */
 public abstract class GuiContainerStorageInventory extends GuiContainer implements IPublicGuiContainer, IStorageInventory {
 
   private static final int HEIGHT = 256;
   private static final int WIDTH = 176;
-  private static final ResourceLocation texture = new ResourceLocation(StorageNetwork.MODID, "textures/gui/request.png");
+  protected ResourceLocation texture = new ResourceLocation(StorageNetwork.MODID, "textures/gui/request.png");
   protected int page = 1, maxPage = 1;
-  public List<StackWrapper> stacks, craftableStacks;
+  public List<ItemStack> stacks, craftableStacks;
   protected ItemStack stackUnderMouse = ItemStack.EMPTY;
   protected GuiTextField searchBar;
   protected GuiStorageButton directionBtn, sortBtn, jeiBtn, clearTextBtn;
   protected List<ItemSlotNetwork> slots;
   protected long lastClick;
   private boolean forceFocus;
+  protected boolean isSimple;
 
-  public GuiContainerStorageInventory(ContainerNetworkBase inventorySlotsIn) {
-    super(inventorySlotsIn);
+  public GuiContainerStorageInventory(ContainerNetworkBase container) {
+    super(container);
     this.xSize = WIDTH;
     this.ySize = HEIGHT;
     this.stacks = Lists.newArrayList();
     this.craftableStacks = Lists.newArrayList();
     PacketRegistry.INSTANCE.sendToServer(new RequestMessage());
     lastClick = System.currentTimeMillis();
+
   }
 
   protected boolean canClick() {
@@ -69,12 +69,12 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
   }
 
   @Override
-  public void setStacks(List<StackWrapper> stacks) {
+  public void setStacks(List<ItemStack> stacks) {
     this.stacks = stacks;
   }
 
   @Override
-  public void setCraftableStacks(List<StackWrapper> stacks) {
+  public void setCraftableStacks(List<ItemStack> stacks) {
     this.craftableStacks = stacks;
   }
 
@@ -84,6 +84,12 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
     Keyboard.enableRepeatEvents(true);
     searchBar = new GuiTextField(0, fontRenderer, guiLeft + 81, guiTop + 96, 85, fontRenderer.FONT_HEIGHT);
     searchBar.setMaxStringLength(30);
+    if (isSimple) {
+      searchBar.x -= 71;
+      searchBar.y += 64;
+      searchBar.width += 74;
+      searchBar.setMaxStringLength(60);
+    }
     searchBar.setEnableBackgroundDrawing(false);
     searchBar.setVisible(true);
     searchBar.setTextColor(16777215);
@@ -91,20 +97,22 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
     if (JeiSettings.isJeiLoaded() && JeiSettings.isJeiSearchSynced()) {
       searchBar.setText(JeiHooks.getFilterText());
     }
-    directionBtn = new GuiStorageButton(0, guiLeft + 7, guiTop + 93, "");
-    this.addButton(directionBtn);
-    sortBtn = new GuiStorageButton(1, guiLeft + 21, guiTop + 93, "");
-    this.addButton(sortBtn);
-    jeiBtn = new GuiStorageButton(4, guiLeft + 35, guiTop + 93, "");
-    if (JeiSettings.isJeiLoaded()) {
-      this.addButton(jeiBtn);
+    if (!isSimple) {
+      directionBtn = new GuiStorageButton(0, guiLeft + 7, searchBar.y - 3, "");
+      this.addButton(directionBtn);
+      sortBtn = new GuiStorageButton(1, guiLeft + 21, searchBar.y - 3, "");
+      this.addButton(sortBtn);
+      jeiBtn = new GuiStorageButton(4, guiLeft + 35, searchBar.y - 3, "");
+      if (JeiSettings.isJeiLoaded()) {
+        this.addButton(jeiBtn);
+      }
+      clearTextBtn = new GuiStorageButton(5, guiLeft + 64, searchBar.y - 3, "X");
+      this.addButton(clearTextBtn);
     }
-    clearTextBtn = new GuiStorageButton(5, guiLeft + 64, guiTop + 93, "X");
-    this.addButton(clearTextBtn);
   }
 
   private int getLines() {
-    return 4;
+    return isSimple ? 8 : 4;
   }
 
   private int getColumns() {
@@ -124,16 +132,19 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
   protected abstract int getDim();
 
   protected boolean inField(int mouseX, int mouseY) {
-    return mouseX > (guiLeft + 7) && mouseX < (guiLeft + xSize - 7) && mouseY > (guiTop + 7) && mouseY < (guiTop + 90);
+    int h = 90;
+    if (isSimple) {
+      h += 60;
+    }
+    return mouseX > (guiLeft + 7) && mouseX < (guiLeft + xSize - 7) && mouseY > (guiTop + 7) && mouseY < (guiTop + h);
   }
 
   protected boolean inSearchbar(int mouseX, int mouseY) {
-    return isPointInRegion(81, 96, 85, fontRenderer.FONT_HEIGHT, mouseX, mouseY);
+    //    System.out.println("mx! " + mouseX + " , my, " + mouseY);
+    //    System.out.println("s.x, " + searchBar.x + " , s.y, " + searchBar.y);
+    return isPointInRegion(searchBar.x - guiLeft + 14, searchBar.y - guiTop, searchBar.width, fontRenderer.FONT_HEIGHT + 6, mouseX, mouseY);
   }
 
-  protected boolean inX(int mouseX, int mouseY) {
-    return isPointInRegion(63, 110, 7, 7, mouseX, mouseY);
-  }
 
   @Override
   public void drawGradientRectP(int left, int top, int right, int bottom, int startColor, int endColor) {
@@ -157,22 +168,22 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
 
   protected abstract boolean isScreenValid();
 
-  private boolean doesStackMatchSearch(StackWrapper stackWrapper) {
+  private boolean doesStackMatchSearch(ItemStack stack) {
     String searchText = searchBar.getText();
     if (searchText.startsWith("@")) {
-      String name = UtilTileEntity.getModNameForItem(stackWrapper.getStack().getItem());
+      String name = UtilTileEntity.getModNameForItem(stack.getItem());
       return name.toLowerCase().contains(searchText.toLowerCase().substring(1));
     }
     else if (searchText.startsWith("#")) {
       String tooltipString;
-      List<String> tooltip = stackWrapper.getStack().getTooltip(mc.player, TooltipFlags.NORMAL);
+      List<String> tooltip = stack.getTooltip(mc.player, TooltipFlags.NORMAL);
       tooltipString = Joiner.on(' ').join(tooltip).toLowerCase();
       tooltipString = ChatFormatting.stripFormatting(tooltipString);
       return tooltipString.toLowerCase().contains(searchText.toLowerCase().substring(1));
     }
     else if (searchText.startsWith("$")) {
       StringBuilder oreDictStringBuilder = new StringBuilder();
-      for (int oreId : OreDictionary.getOreIDs(stackWrapper.getStack())) {
+      for (int oreId : OreDictionary.getOreIDs(stack)) {
         String oreName = OreDictionary.getOreName(oreId);
         oreDictStringBuilder.append(oreName).append(' ');
       }
@@ -180,7 +191,7 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
     }
     else if (searchText.startsWith("%")) {
       StringBuilder creativeTabStringBuilder = new StringBuilder();
-      for (CreativeTabs creativeTab : stackWrapper.getStack().getItem().getCreativeTabs()) {
+      for (CreativeTabs creativeTab : stack.getItem().getCreativeTabs()) {
         if (creativeTab != null) {
           String creativeTabName = creativeTab.getTranslatedTabLabel();
           creativeTabStringBuilder.append(creativeTabName).append(' ');
@@ -189,7 +200,7 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
       return creativeTabStringBuilder.toString().toLowerCase().contains(searchText.toLowerCase().substring(1));
     }
     else {
-      return stackWrapper.getStack().getDisplayName().toLowerCase().contains(searchText.toLowerCase());
+      return stack.getDisplayName().toLowerCase().contains(searchText.toLowerCase());
     }
   }
 
@@ -200,7 +211,7 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
     }
     this.drawDefaultBackground();//dim the background as normal
     renderTextures();
-    List<StackWrapper> stacksToDisplay = applySearchTextToSlots();
+    List<ItemStack> stacksToDisplay = applySearchTextToSlots();
     sortStackWrappers(stacksToDisplay);
     applyScrollPaging(stacksToDisplay);
     rebuildItemSlots(stacksToDisplay);
@@ -216,13 +227,13 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
     this.drawTexturedModalRect(xCenter, yCenter, 0, 0, this.xSize, this.ySize);
   }
 
-  private List<StackWrapper> applySearchTextToSlots() {
+  private List<ItemStack> applySearchTextToSlots() {
     String searchText = searchBar.getText();
-    List<StackWrapper> stacksToDisplay = searchText.equals("") ? Lists.newArrayList(stacks) : Lists.<StackWrapper> newArrayList();
+    List<ItemStack> stacksToDisplay = searchText.equals("") ? Lists.newArrayList(stacks) : Lists.newArrayList();
     if (!searchText.equals("")) {
-      for (StackWrapper stackWrapper : stacks) {
-        if (doesStackMatchSearch(stackWrapper)) {
-          stacksToDisplay.add(stackWrapper);
+      for (ItemStack stack : stacks) {
+        if (doesStackMatchSearch(stack)) {
+          stacksToDisplay.add(stack);
         }
       }
     }
@@ -243,7 +254,7 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
     }
   }
 
-  private void rebuildItemSlots(List<StackWrapper> stacksToDisplay) {
+  private void rebuildItemSlots(List<ItemStack> stacksToDisplay) {
     slots = Lists.newArrayList();
     int index = (page - 1) * (getColumns());
     for (int row = 0; row < getLines(); row++) {
@@ -252,13 +263,13 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
           break;
         }
         int in = index;
-        slots.add(new ItemSlotNetwork(this, stacksToDisplay.get(in).getStack(), guiLeft + 8 + col * 18, guiTop + 10 + row * 18, stacksToDisplay.get(in).getSize(), guiLeft, guiTop, true));
+        slots.add(new ItemSlotNetwork(this, stacksToDisplay.get(in), guiLeft + 8 + col * 18, guiTop + 10 + row * 18, stacksToDisplay.get(in).getCount(), guiLeft, guiTop, true));
         index++;
       }
     }
   }
 
-  private void applyScrollPaging(List<StackWrapper> stacksToDisplay) {
+  private void applyScrollPaging(List<ItemStack> stacksToDisplay) {
     maxPage = stacksToDisplay.size() / (getColumns());
     if (stacksToDisplay.size() % (getColumns()) != 0) {
       maxPage++;
@@ -275,20 +286,20 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
     }
   }
 
-  private void sortStackWrappers(List<StackWrapper> stacksToDisplay) {
-    Collections.sort(stacksToDisplay, new Comparator<StackWrapper>() {
+  private void sortStackWrappers(List<ItemStack> stacksToDisplay) {
+    Collections.sort(stacksToDisplay, new Comparator<ItemStack>() {
 
       int mul = getDownwards() ? -1 : 1;
 
       @Override
-      public int compare(StackWrapper o2, StackWrapper o1) {
+      public int compare(ItemStack o2, ItemStack o1) {
         switch (getSort()) {
           case AMOUNT:
-            return Integer.compare(o1.getSize(), o2.getSize()) * mul;
+            return Integer.compare(o1.getCount(), o2.getCount()) * mul;
           case NAME:
-            return o2.getStack().getDisplayName().compareToIgnoreCase(o1.getStack().getDisplayName()) * mul;
+            return o2.getDisplayName().compareToIgnoreCase(o1.getDisplayName()) * mul;
           case MOD:
-            return UtilTileEntity.getModNameForItem(o2.getStack().getItem()).compareToIgnoreCase(UtilTileEntity.getModNameForItem(o1.getStack().getItem())) * mul;
+            return UtilTileEntity.getModNameForItem(o2.getItem()).compareToIgnoreCase(UtilTileEntity.getModNameForItem(o1.getItem())) * mul;
         }
         return 0;
       }
@@ -382,7 +393,7 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
     else if (button.id == this.clearTextBtn.id) {
       doSort = false;
       clearSearch();
-      //      this.searchBar.setFocused(true);//doesnt work..somethings overriding it?
+      //      this.fieldOperationLimit.setFocused(true);//doesnt work..somethings overriding it?
       this.forceFocus = true;//we have to force it to go next-tick
     }
     if (doSort) {
@@ -401,16 +412,17 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
   public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
     super.mouseClicked(mouseX, mouseY, mouseButton);
     searchBar.setFocused(false);
+    //int rectX = 63, rectY = (isSimple) ? 220 : 110;
     if (inSearchbar(mouseX, mouseY)) {
       searchBar.setFocused(true);
       if (mouseButton == UtilTileEntity.MOUSE_BTN_RIGHT) {
         clearSearch();
       }
     }
-    else if (inX(mouseX, mouseY)) {
-      PacketRegistry.INSTANCE.sendToServer(new ClearRecipeMessage());
-      PacketRegistry.INSTANCE.sendToServer(new RequestMessage(0, ItemStack.EMPTY, false, false));
-    }
+    //    else if (isPointInRegion(rectX, rectY, 7, 7, mouseX, mouseY)) {
+    //      PacketRegistry.INSTANCE.sendToServer(new ClearRecipeMessage());
+    //      PacketRegistry.INSTANCE.sendToServer(new RequestMessage(0, ItemStack.EMPTY, false, false));
+    //    }
     else {
       ItemStack stackCarriedByMouse = mc.player.inventory.getItemStack();
       if (!stackUnderMouse.isEmpty()
@@ -437,7 +449,12 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
         }
       }
       else if (this.stackUnderMouse.isEmpty() == false) {
-        JeiHooks.testJeiKeybind(keyCode, this.stackUnderMouse);
+        try {
+          JeiHooks.testJeiKeybind(keyCode, this.stackUnderMouse);
+        }
+        catch (Throwable e) {
+          //its ok JEI not installed for maybe an addon mod is ok 
+        }
       }
       else {
         super.keyTyped(typedChar, keyCode);

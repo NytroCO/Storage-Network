@@ -7,8 +7,8 @@
     "1.12-recommended": "1.0.15",
     "1.12.1-latest": "1.0.15",
     "1.12.1-recommended": "1.1.1",
-    "1.12.2-latest": "1.5.6",
-    "1.12.2-recommended": "1.5.6"
+    "1.12.2-latest": "1.7.1",
+    "1.12.2-recommended": "1.7.1"
   },
   "1.11.2":{
 	"1.0.0":"First Release"
@@ -61,5 +61,15 @@
 	,"1.5.4":"Fixed Storage Remote sometimes not opening and getting locked up.  "
 	,"1.5.5":"Processing cable now indicates if its recipe is invalid to the player.  Updated priority tooltip.  Fixed delay in processing cables (it no longer looks for impossible speed upgrades).  Update to recipe handler transfer from JEI to avoid getting mismatched NBT items (such as tools or copper cables). "
   	,"1.5.6":"Fixed Controller not listing correct block name for some machines (Mekanism, exu2).  New config S:BlacklistBlocks added to disable connections to any block, default value contains extrautils2:playerchest.  Removed a debug button that did nothing.  Added scroll-wheel support to certain filter and recipe slots in network cable inventories.  "
+  	,"1.5.7":"Fixed an issue where item stacks would appear and be extracted even when the machine set those slots to disable extraction (for example machine upgrades if the mod had the right setting in IItemHandler:extractItem).  "
+  	,"1.6.0":"Api and huge refactor using capabilities with thraaawn.  "
+  	,"1.6.1":"Fixed network GUI's not opening.  Addon capability API in 1.6.0 is available for use.  "
+  	,"1.6.2":"Added safeguards to patch ConcurrentModificationException with processing cables.  Fixed the remotes sometimes crashing the game.   "
+  	,"1.6.3":"Fix a game crash when the network was large and was refreshing connections (such as player dying, etc)"
+  	,"1.6.4":"Fixed game crash when network refreshed itself multiple times on the same tick (Thanks Davenonymous aka thraaawn). "
+  	,"1.6.5":"Fixed a rare game crash that can happen when, if fastcraft is installed, and if chunk the master was in was unloaded (coming back from nether, etc) then this can happen when you come back if you open a network GUI before it can refresh."
+  	,"1.6.6":"Fixed a bug where the came might crash when playing on a server and using the network across dimensions.  "
+  	,"1.7.0":"Added simple remote with no crafting component.  Updated to work around some small server issues and crafting issues.  Add config to optionally disable fastworkbench compatibility even if mod is installed for testing.   "
+  	,"1.7.1":"Tooltip fix"
   }
 }

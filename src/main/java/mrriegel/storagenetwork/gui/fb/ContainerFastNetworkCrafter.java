@@ -6,11 +6,10 @@ import java.util.List;
 import it.unimi.dsi.fastutil.ints.Int2IntMap.Entry;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import mrriegel.storagenetwork.block.master.TileMaster;
+import mrriegel.storagenetwork.data.ItemStackMatcher;
 import mrriegel.storagenetwork.gui.IStorageContainer;
 import mrriegel.storagenetwork.network.StackRefreshClientMessage;
 import mrriegel.storagenetwork.registry.PacketRegistry;
-import mrriegel.storagenetwork.util.data.FilterItem;
-import mrriegel.storagenetwork.util.data.StackWrapper;
 import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -66,13 +65,18 @@ public abstract class ContainerFastNetworkCrafter extends ContainerFastBench imp
 
   @Override
   public ItemStack transferStackInSlot(EntityPlayer player, int index) {
-    if (world.isRemote) return ItemStack.EMPTY;
+    if (world.isRemote) {
+      return ItemStack.EMPTY;
+    }
     ItemStack slotCopy = ItemStack.EMPTY;
     Slot slot = this.inventorySlots.get(index);
     if (slot != null && slot.getHasStack()) {
       ItemStack slotStack = slot.getStack();
       slotCopy = slotStack.copy();
       TileMaster tileMaster = this.getTileMaster();
+      if (tileMaster == null) {
+        return ItemStack.EMPTY;
+      }
       if (index == 0) {
         int num = slotCopy.getMaxStackSize() / slotCopy.getCount();
         IRecipe rec = lastRecipe;
@@ -83,11 +87,12 @@ public abstract class ContainerFastNetworkCrafter extends ContainerFastBench imp
         return new ItemStack(Items.STICK);
       }
       else if (tileMaster != null) {
-        int rest = tileMaster.insertStack(slotStack, null, false);
+        int rest = tileMaster.insertStack(slotStack, false);
         ItemStack stack = rest == 0 ? ItemStack.EMPTY : ItemHandlerHelper.copyStackWithSize(slotStack, rest);
         slot.putStack(stack);
         detectAndSendChanges();
-        List<StackWrapper> list = tileMaster.getStacks();
+        List<ItemStack> list = tileMaster.getStacks();
+
         PacketRegistry.INSTANCE.sendTo(new StackRefreshClientMessage(list, new ArrayList<>()), (EntityPlayerMP) player);
         if (stack.isEmpty()) return ItemStack.EMPTY;
         slot.onTake(player, slotStack);
@@ -174,7 +179,7 @@ public abstract class ContainerFastNetworkCrafter extends ContainerFastBench imp
       for (int i = 0; i < 9; i++) {
         if (matrix.getStackInSlot(i).isEmpty()) {
           ItemStack cached = requests[i];
-          if (!cached.isEmpty()) matrix.stackList.set(i, slot.getTileMaster().request(new FilterItem(cached, true, false, cached.hasTagCompound()), two ? 1 : cached.getMaxStackSize(), false));
+          if (!cached.isEmpty()) matrix.stackList.set(i, slot.getTileMaster().request(new ItemStackMatcher(cached, true, false, cached.hasTagCompound()), two ? 1 : cached.getMaxStackSize(), false));
         }
       }
       return;
@@ -182,7 +187,7 @@ public abstract class ContainerFastNetworkCrafter extends ContainerFastBench imp
     //If not, these requested stacks must meet an item/meta pair.
     /**
      * Grid Layout originally is preserved in the ItemStack[] as 0 1 2 3 4 5 6 7 8
-     * 
+     *
      * We need to grab as much as we can and sort into the original pattern equally.
      */
     ItemStack[] requested = new ItemStack[9];
@@ -192,7 +197,7 @@ public abstract class ContainerFastNetworkCrafter extends ContainerFastBench imp
     for (int i = 0; i < 9; i++) {
       if (matrix.getStackInSlot(i).isEmpty()) {
         ItemStack cached = requests[i];
-        if (!cached.isEmpty()) requested[i] = slot.getTileMaster().request(new FilterItem(cached, true, false, cached.hasTagCompound()), cached.getMaxStackSize(), false);
+        if (!cached.isEmpty()) requested[i] = slot.getTileMaster().request(new ItemStackMatcher(cached, true, false, cached.hasTagCompound()), cached.getMaxStackSize(), false);
         matrixFull = false;
       }
     }
@@ -252,11 +257,11 @@ public abstract class ContainerFastNetworkCrafter extends ContainerFastBench imp
           ItemStack n = s.copy();
           n.setCount(s.getMaxStackSize());
           num -= n.getCount();
-          master.insertStack(n, BlockPos.ORIGIN, false);
+          master.insertStack(n, false);
         }
         s.setCount(num);
         num -= s.getCount();
-        master.insertStack(s, BlockPos.ORIGIN, false);
+        master.insertStack(s, false);
       }
     }
   }
