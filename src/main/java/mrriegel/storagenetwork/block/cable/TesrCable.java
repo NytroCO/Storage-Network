@@ -17,12 +17,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TesrCable extends TileEntitySpecialRenderer<TileCable> {
 
   private ModelCable model;
-
   private static Map<Block, ResourceLocation> renderMaps = new HashMap<>();
 
   public static void addCableRender(Block block, ResourceLocation image) {
     renderMaps.put(block, image);
   }
+
   // TODO: Use baked models instead of tesrs
   public TesrCable() {
     model = new ModelCable();
@@ -37,15 +37,12 @@ public class TesrCable extends TileEntitySpecialRenderer<TileCable> {
     if (!(blockstate.getBlock() instanceof BlockCable)) {
       return;
     }
-
-
     blockstate = blockstate.getActualState(te.getWorld(), te.getPos());
-    IExtendedBlockState extendedBlockState = (IExtendedBlockState)blockstate.getBlock().getExtendedState(blockstate, te.getWorld(), te.getPos());
+    IExtendedBlockState extendedBlockState = (IExtendedBlockState) blockstate.getBlock().getExtendedState(blockstate, te.getWorld(), te.getPos());
     UnlistedPropertyBlockNeighbors.BlockNeighbors neighbors = extendedBlockState.getValue(BlockCable.BLOCK_NEIGHBORS);
     if (neighbors == null) {
       return;
     }
-
     GlStateManager.pushMatrix();
     GlStateManager.enableRescaleNormal();
     GlStateManager.translate((float) x + 0.5F, (float) y + 0.5F, (float) z + 0.5F);
@@ -53,7 +50,6 @@ public class TesrCable extends TileEntitySpecialRenderer<TileCable> {
     if (renderMaps.containsKey(kind)) {
       Minecraft.getMinecraft().renderEngine.bindTexture(renderMaps.get(kind));
     }
-
     GlStateManager.pushMatrix();
     GlStateManager.rotate(180F, 0.0F, 0.0F, 1.0F);
     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

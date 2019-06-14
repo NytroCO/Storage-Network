@@ -10,7 +10,6 @@ public class ModItems {
 
   @GameRegistry.ObjectHolder("upgrade")
   public static ItemUpgrade upgrade;
-
   @GameRegistry.ObjectHolder("remote")
   public static ItemRemote remote;
 }

@@ -7,7 +7,6 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mrriegel.storagenetwork.gui.IStorageContainer;
-import mrriegel.storagenetwork.network.ClearRecipeMessage;
 import mrriegel.storagenetwork.network.RecipeMessage;
 import mrriegel.storagenetwork.registry.PacketRegistry;
 import net.minecraft.entity.player.EntityPlayer;
@@ -66,7 +65,6 @@ public class RequestRecipeTransferHandler<C extends Container & IStorageContaine
   @Override
   public IRecipeTransferError transferRecipe(Container container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
     if (doTransfer) {
-      PacketRegistry.INSTANCE.sendToServer(new ClearRecipeMessage());
       NBTTagCompound nbt = RequestRecipeTransferHandler.recipeToTag(container, recipeLayout);
       PacketRegistry.INSTANCE.sendToServer(new RecipeMessage(nbt));
     }

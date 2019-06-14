@@ -7,6 +7,7 @@ import mrriegel.storagenetwork.gui.GuiHandler;
 import mrriegel.storagenetwork.jei.JeiSettings;
 import mrriegel.storagenetwork.registry.PacketRegistry;
 import mrriegel.storagenetwork.util.UtilTileEntity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -17,10 +18,12 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 @Mod.EventBusSubscriber
 public class CommonProxy {
 
+  public EntityPlayer getClientPlayer() {
+    return null;
+  }
 
   public void preInit(FMLPreInitializationEvent event) {
     StorageNetworkCapabilities.initCapabilities();
-
     ConfigHandler.refreshConfig(event.getSuggestedConfigurationFile());
     JeiSettings.setJeiLoaded(Loader.isModLoaded("jei"));
     PacketRegistry.init();

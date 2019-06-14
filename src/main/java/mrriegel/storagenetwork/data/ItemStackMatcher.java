@@ -1,7 +1,6 @@
 package mrriegel.storagenetwork.data;
 
 import javax.annotation.Nonnull;
-
 import mrriegel.storagenetwork.api.data.IItemStackMatcher;
 import mrriegel.storagenetwork.util.UtilTileEntity;
 import net.minecraft.item.ItemStack;

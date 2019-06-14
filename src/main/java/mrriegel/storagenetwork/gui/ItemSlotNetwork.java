@@ -19,7 +19,7 @@ import net.minecraft.item.ItemStack;
 public class ItemSlotNetwork {
 
   private int x, y, size, guiLeft, guiTop;
-  private boolean number;
+  private boolean showNumbers;
   private Minecraft mc;
   private IPublicGuiContainer parent;
   private ItemStack stack;
@@ -30,7 +30,7 @@ public class ItemSlotNetwork {
     this.size = size;
     this.guiLeft = guiLeft;
     this.guiTop = guiTop;
-    this.number = number;
+    this.setShowNumbers(number);
     this.parent = parent;
     mc = Minecraft.getMinecraft();
     this.setStack(stack);
@@ -52,7 +52,7 @@ public class ItemSlotNetwork {
         amount = size + "";
       else
         amount = UtilInventory.formatLargeNumber(size);
-      if (number) {
+      if (isShowNumbers()) {
         GlStateManager.pushMatrix();
         GlStateManager.scale(.5f, .5f, .5f);
         mc.getRenderItem().renderItemOverlayIntoGUI(parent.getFont(), stack, x * 2 + 16, y * 2 + 16, amount);
@@ -85,5 +85,13 @@ public class ItemSlotNetwork {
 
   public void setStack(ItemStack stack) {
     this.stack = stack;
+  }
+
+  public boolean isShowNumbers() {
+    return showNumbers;
+  }
+
+  public void setShowNumbers(boolean showNumbers) {
+    this.showNumbers = showNumbers;
   }
 }

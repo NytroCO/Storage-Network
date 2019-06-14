@@ -1,5 +1,7 @@
 package mrriegel.storagenetwork.block.cable;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import mrriegel.storagenetwork.CreativeTab;
 import mrriegel.storagenetwork.StorageNetwork;
 import mrriegel.storagenetwork.api.capability.IConnectable;
@@ -35,10 +37,8 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nullable;
-import java.util.List;
-
 public class BlockCable extends AbstractBlockConnectable {
+
   public static final UnlistedPropertyBlockNeighbors BLOCK_NEIGHBORS = new UnlistedPropertyBlockNeighbors();
 
   public BlockCable(String registryName) {
@@ -51,19 +51,17 @@ public class BlockCable extends AbstractBlockConnectable {
   protected BlockStateContainer createBlockState() {
     IProperty[] listedProperties = new IProperty[0];
     IUnlistedProperty[] unlistedProperties = new IUnlistedProperty[] { BLOCK_NEIGHBORS };
-
     return new ExtendedBlockState(this, listedProperties, unlistedProperties);
   }
 
   protected UnlistedPropertyBlockNeighbors.BlockNeighbors getBlockNeighbors(IBlockAccess world, BlockPos pos) {
     UnlistedPropertyBlockNeighbors.BlockNeighbors blockNeighbors = new UnlistedPropertyBlockNeighbors.BlockNeighbors();
-    for(EnumFacing facing : EnumFacing.values()) {
+    for (EnumFacing facing : EnumFacing.values()) {
       TileMaster tileMaster = getClientSideTileEntity(world, pos.offset(facing), TileMaster.class);
       IConnectable connectable = getClientSideCapability(world, pos.offset(facing), StorageNetworkCapabilities.CONNECTABLE_CAPABILITY, null);
-      if(connectable == null && tileMaster == null) {
+      if (connectable == null && tileMaster == null) {
         continue;
       }
-
       blockNeighbors.setNeighborType(facing, UnlistedPropertyBlockNeighbors.EnumNeighborType.CABLE);
     }
     return blockNeighbors;
@@ -71,35 +69,31 @@ public class BlockCable extends AbstractBlockConnectable {
 
   @Override
   public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
-    IExtendedBlockState extendedBlockState = (IExtendedBlockState)state;
+    IExtendedBlockState extendedBlockState = (IExtendedBlockState) state;
     return extendedBlockState.withProperty(BLOCK_NEIGHBORS, getBlockNeighbors(world, pos));
   }
 
   @Nullable
   public <V> V getClientSideTileEntity(IBlockAccess world, BlockPos pos, Class<V> tileEntityClassOrInterface) {
     TileEntity tileEntity = world.getTileEntity(pos);
-    if(tileEntity == null) {
+    if (tileEntity == null) {
       return null;
     }
-
-    if(!tileEntityClassOrInterface.isAssignableFrom(tileEntity.getClass())) {
+    if (!tileEntityClassOrInterface.isAssignableFrom(tileEntity.getClass())) {
       return null;
     }
-
     return (V) tileEntity;
   }
 
   @Nullable
   private <V> V getClientSideCapability(IBlockAccess world, BlockPos pos, Capability<V> capability, EnumFacing side) {
     TileEntity tileEntity = world.getTileEntity(pos);
-    if(tileEntity == null) {
+    if (tileEntity == null) {
       return null;
     }
-
-    if(!tileEntity.hasCapability(capability, side)) {
+    if (!tileEntity.hasCapability(capability, side)) {
       return null;
     }
-
     return tileEntity.getCapability(capability, side);
   }
 
@@ -161,32 +155,26 @@ public class BlockCable extends AbstractBlockConnectable {
     if (!(tile instanceof TileCable)) {
       return false;
     }
-
     if (worldIn.isRemote) {
       return true;
     }
-
     // TODO: Move gui open actions to the block classes
     if (tile.getBlockType() == ModBlocks.exKabel) {
       playerIn.openGui(StorageNetwork.instance, GuiHandler.GuiIDs.EXPORT.ordinal(), worldIn, pos.getX(), pos.getY(), pos.getZ());
       return true;
     }
-
     if (tile.getBlockType() == ModBlocks.imKabel) {
       playerIn.openGui(StorageNetwork.instance, GuiHandler.GuiIDs.IMPORT.ordinal(), worldIn, pos.getX(), pos.getY(), pos.getZ());
       return true;
     }
-
     if (tile.getBlockType() == ModBlocks.storageKabel) {
       playerIn.openGui(StorageNetwork.instance, GuiHandler.GuiIDs.LINK.ordinal(), worldIn, pos.getX(), pos.getY(), pos.getZ());
       return true;
     }
-
     if (tile.getBlockType() == ModBlocks.processKabel) {
       playerIn.openGui(StorageNetwork.instance, GuiHandler.GuiIDs.PROCESSING.ordinal(), worldIn, pos.getX(), pos.getY(), pos.getZ());
       return true;
     }
-
     return false;
   }
 
@@ -196,7 +184,6 @@ public class BlockCable extends AbstractBlockConnectable {
     if (!(tileHere instanceof TileCable)) {
       return;
     }
-
     float f = 0.3125F;
     float f1 = 0.6875F;
     float f2 = 0.3125F;
@@ -204,10 +191,7 @@ public class BlockCable extends AbstractBlockConnectable {
     float f4 = 0.3125F;
     float f5 = 0.6875F;
     addCollisionBoxToList(pos, entityBox, collidingBoxes, new AxisAlignedBB(f, f4, f2, f1, f5, f3));
-
     UnlistedPropertyBlockNeighbors.BlockNeighbors neighbors = getBlockNeighbors(worldIn, pos);
-
-
     if (neighbors.north() != UnlistedPropertyBlockNeighbors.EnumNeighborType.NONE) {
       f2 = 0f;
       addCollisionBoxToList(pos, entityBox, collidingBoxes, new AxisAlignedBB(f, f4, f2, f1, f5, f3));
@@ -240,9 +224,7 @@ public class BlockCable extends AbstractBlockConnectable {
     if (tileHere == null || !(tileHere instanceof TileCable)) {
       return FULL_BLOCK_AABB;
     }
-
     UnlistedPropertyBlockNeighbors.BlockNeighbors neighbors = getBlockNeighbors(world, pos);
-
     float x1 = 0.37F;
     float x2 = 0.63F;
     float y1 = 0.37F;

@@ -49,16 +49,13 @@ public class CableDataMessage implements IMessage, IMessageHandler<CableDataMess
       @Override
       public void run() {
         CableMessageType type = CableMessageType.values()[message.id];
-
         if (player.openContainer instanceof ContainerCableIO) {
           updateCableIO(player, type);
         }
-
         if (player.openContainer instanceof ContainerCableLink) {
           updateCableLink(player, type);
         }
-
-        if(player.openContainer instanceof ContainerCableProcessing) {
+        if (player.openContainer instanceof ContainerCableProcessing) {
           updateProcessing(message, player, type);
         }
       }
@@ -91,48 +88,43 @@ public class CableDataMessage implements IMessage, IMessageHandler<CableDataMess
         if (con == null || con.link == null) {
           return;
         }
-
         INetworkMaster master = StorageNetwork.helpers.getTileMasterForConnectable(con.link.connectable);
-
-        switch(type) {
+        switch (type) {
           case TOGGLE_WAY:
             con.link.filterDirection = con.link.filterDirection.next();
-            break;
+          break;
           case TOGGLE_WHITELIST:
             con.link.filters.isWhitelist = !con.link.filters.isWhitelist;
-            break;
+          break;
           case PRIORITY_UP:
             con.link.priority++;
-            if(master != null) {
+            if (master != null) {
               master.clearCache();
             }
-            break;
+          break;
           case PRIORITY_DOWN:
             con.link.priority--;
-            if(master != null) {
+            if (master != null) {
               master.clearCache();
             }
-            break;
+          break;
           case IMPORT_FILTER:
             // First clear out all filters
             //            con.link.filters.clear();
             //TODO: Fix this not auto sync to client 
             //TODO: Fix this not auto sync to client   
-
             int targetSlot = 0;
-            for(ItemStack filterSuggestion : con.link.getStoredStacks()) {
+            for (ItemStack filterSuggestion : con.link.getStoredStacks()) {
               // Ignore stacks that are already filtered
               if (con.link.filters.exactStackAlreadyInList(filterSuggestion)) {
                 continue;
               }
-
               con.link.filters.setStackInSlot(targetSlot, filterSuggestion.copy());
               targetSlot++;
-              if(targetSlot >= con.link.filters.getSlots()) {
+              if (targetSlot >= con.link.filters.getSlots()) {
                 continue;
               }
             }
-            StorageNetwork.log("Send new refresh client msg");
             PacketRegistry.INSTANCE.sendTo(new RefreshFilterClientMessage(con.link.filters.getStacks()), player);
             con.tile.markDirty();
           break;
@@ -140,54 +132,47 @@ public class CableDataMessage implements IMessage, IMessageHandler<CableDataMess
       }
 
       private void updateCableIO(EntityPlayerMP player, CableMessageType type) {
-        StorageNetwork.log("updateCableIO " + type);
         ContainerCableIO con = (ContainerCableIO) player.openContainer;
         if (con == null || con.autoIO == null) {
           return;
         }
-
         INetworkMaster master = StorageNetwork.helpers.getTileMasterForConnectable(con.autoIO.connectable);
-
         switch (type) {
           case TOGGLE_MODE:
             con.autoIO.operationMustBeSmaller = !con.autoIO.operationMustBeSmaller;
-            break;
+          break;
           case TOGGLE_WHITELIST:
             con.autoIO.filters.isWhitelist = !con.autoIO.filters.isWhitelist;
-            break;
+          break;
           case PRIORITY_UP:
             con.autoIO.priority++;
-            if(master != null) {
+            if (master != null) {
               master.clearCache();
             }
-            break;
+          break;
           case PRIORITY_DOWN:
             con.autoIO.priority--;
-            if(master != null) {
+            if (master != null) {
               master.clearCache();
             }
-            break;
+          break;
           case IMPORT_FILTER:
             //TODO: Fix this not auto sync to client 
             //TODO: Fix this not auto sync to client 
-
-
             int targetSlot = 0;
-            for(ItemStack filterSuggestion : con.autoIO.getStacksForFilter()) {
+            for (ItemStack filterSuggestion : con.autoIO.getStacksForFilter()) {
               // Ignore stacks that are already filtered 
               if (con.autoIO.filters.exactStackAlreadyInList(filterSuggestion)) {
                 continue;
               }
-
               con.autoIO.filters.setStackInSlot(targetSlot, filterSuggestion.copy());
               targetSlot++;
-              if(targetSlot >= con.autoIO.filters.getSlots()) {
+              if (targetSlot >= con.autoIO.filters.getSlots()) {
                 continue;
               }
             }
-            break;
+          break;
         }
-
         StorageNetwork.log("Send new refresh client msg");
         PacketRegistry.INSTANCE.sendTo(new RefreshFilterClientMessage(con.autoIO.filters.getStacks()), player);
         con.tile.markDirty();

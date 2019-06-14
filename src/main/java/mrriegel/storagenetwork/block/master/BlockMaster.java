@@ -107,7 +107,6 @@ public class BlockMaster extends BaseBlock {
     Iterator<DimPos> iter = tileMaster.getConnectablePositions().iterator();
     while (iter.hasNext()) {
       final DimPos p = iter.next();
-
       String block = p.getBlockState().getBlock().getLocalizedName();
       mapNamesToCount.put(block, mapNamesToCount.get(block) != null ? (mapNamesToCount.get(block) + 1) : 1);
     }

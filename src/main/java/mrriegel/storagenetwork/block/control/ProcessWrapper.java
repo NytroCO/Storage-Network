@@ -2,7 +2,6 @@ package mrriegel.storagenetwork.block.control;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import mrriegel.storagenetwork.api.data.DimPos;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

@@ -1,6 +1,8 @@
 package mrriegel.storagenetwork.block.cable.processing;
 
-import mrriegel.storagenetwork.StorageNetwork;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import mrriegel.storagenetwork.block.cable.TileCableWithFacing;
 import mrriegel.storagenetwork.block.master.TileMaster;
 import mrriegel.storagenetwork.data.ItemStackMatcher;
@@ -12,43 +14,33 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class TileCableProcess extends TileCableWithFacing {
+
   private ProcessRequestModel processModel = new ProcessRequestModel();
   public EnumFacing processingTop = EnumFacing.UP;
   public EnumFacing processingBottom = EnumFacing.DOWN;
-
   public ProcessingItemStackHandler filters = new ProcessingItemStackHandler();
 
   @Override
   public void readFromNBT(NBTTagCompound compound) {
     processingTop = EnumFacing.values()[compound.getInteger("processingTop")];
     processingBottom = EnumFacing.values()[compound.getInteger("processingBottom")];
-
     ProcessRequestModel pm = new ProcessRequestModel();
     pm.readFromNBT(compound);
     this.setProcessModel(pm);
-
     NBTTagCompound filters = compound.getCompoundTag("filters");
     this.filters.deserializeNBT(filters);
-
     super.readFromNBT(compound);
   }
 
   @Override
   public NBTTagCompound writeToNBT(NBTTagCompound compound) {
     super.writeToNBT(compound);
-
     this.processModel.writeToNBT(compound);
     compound.setInteger("processingBottom", processingBottom.ordinal());
     compound.setInteger("processingTop", processingTop.ordinal());
-
     NBTTagCompound filters = this.filters.serializeNBT();
     compound.setTag("filters", filters);
-
     return compound;
   }
 
@@ -57,26 +49,20 @@ public class TileCableProcess extends TileCableWithFacing {
     if (processRequest == null) {
       return;
     }
-
     if (processRequest.isAlwaysActive() == false && processRequest.getCount() <= 0) {
       return; //no more left to do
     }
-
-    if(getMaster() == null || getMaster().getTileEntity(TileMaster.class) == null) {
+    if (getMaster() == null || getMaster().getTileEntity(TileMaster.class) == null) {
       return;
     }
-
-    if(!hasDirection()) {
+    if (!hasDirection()) {
       return;
     }
-
     TileMaster master = getMaster().getTileEntity(TileMaster.class);
-
     //now check item filter for input/output
     List<ItemStack> ingredients = getProcessIngredients();
     //well should this only be a single output?
     List<ItemStack> outputs = getProcessOutputs();
-
     //EXAMPLE REQUEST:
     //automate a furnace:
     // ingredient is one cobblestone (network provides-exports this)
@@ -106,8 +92,8 @@ public class TileCableProcess extends TileCableWithFacing {
         //true is using nbt
         inventoryLinked = UtilInventory.getItemHandler(world.getTileEntity(this.getFacingPosition()), this.getFacingTopRow());
         ItemStack requestedFromNetwork = master.request(
-                new ItemStackMatcher(ingred.copy(), this.filters.meta, this.filters.ores, this.filters.nbt),
-                ingred.getCount(), simulate);//false means 4real, no simulate
+            new ItemStackMatcher(ingred.copy(), this.filters.meta, this.filters.ores, this.filters.nbt),
+            ingred.getCount(), simulate);//false means 4real, no simulate
         int found = requestedFromNetwork.getCount();
         //   StorageNetwork.log("ingr size " + ingred.getSize() + " found +" + found + " of " + ingred.getStack().getDisplayName());
         ItemStack remain = ItemHandlerHelper.insertItemStacked(inventoryLinked, requestedFromNetwork, simulate);
@@ -193,10 +179,9 @@ public class TileCableProcess extends TileCableWithFacing {
 
   @Nonnull
   public ItemStack getFirstRecipeOut() {
-    if(filters.isOutputEmpty()) {
+    if (filters.isOutputEmpty()) {
       return ItemStack.EMPTY;
     }
-
     return filters.getOutputs().get(0);
   }
 
@@ -225,6 +210,4 @@ public class TileCableProcess extends TileCableWithFacing {
   public void setRequest(ProcessRequestModel request) {
     this.setProcessModel(request);
   }
-
-
 }

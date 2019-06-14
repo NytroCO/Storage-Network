@@ -2,6 +2,7 @@ tile.storagenetwork:kabel.name=Кабель хранения
 tile.storagenetwork:storage_kabel.name=Связующий кабель хранения
 tile.storagenetwork:ex_kabel.name=Кабель хранения экспорта
 tile.storagenetwork:im_kabel.name=Кабель хранения импорта
+tile.storagenetwork:process_kabel.name=Обрабатывающий кабель
 
 tile.storagenetwork:master.name=Мастер сетевого хранения
 tile.storagenetwork:request.name=Таблица запросов хранения
@@ -14,6 +15,12 @@ item.storagenetwork:upgrade_3.name=Обновление "Запас"
 item.storagenetwork:remote_0.name=Удаленное хранение
 item.storagenetwork:remote_2.name=Обновленное удаленное хранение
 item.storagenetwork:remote_1.name=Расширенное удаленное хранение
+item.storagenetwork:remote_3.name=Простое удаленное хранение
+
+tile.storagenetwork:recipe.invalid=Транзакция недействительна: 
+tile.storagenetwork:recipe.invalidleft=Установить вход слева
+tile.storagenetwork:recipe.invalidright=Установить выход справа
+tile.storagenetwork:recipe.valid=Транзакция действительна
 
 item.remote.outofrange=Вне диапазона
 item.remote.notloaded=Чанк не загружен
@@ -22,18 +29,19 @@ gui.storagenetwork.operate.tooltip=Активно, если %s чем %d %s в �
 gui.storagenetwork.operate.tooltip.more=больше
 gui.storagenetwork.operate.tooltip.less=меньше
 
+gui.storagenetwork.refresh=Обновить обработку транзакций, так, если он застрял в ожидании результата, это поменяет его обратно в режим рецепта для сбора ингредиентов.
 
-gui.storagenetwork.checkbox.meta=Использовать метаданные
-gui.storagenetwork.checkbox.ore=Рудный словарь
+gui.storagenetwork.checkbox.meta=Метаданные
+gui.storagenetwork.checkbox.ore=Словарь руды
+gui.storagenetwork.checkbox.nbt=NBT
 
 gui.storagenetwork.gui.import=Фильтр импорта
 gui.storagenetwork.gui.whitelist=Белый список
 gui.storagenetwork.gui.blacklist=Черный список
 
 gui.storagenetwork.sort=Направление сортировки
-gui.storagenetwork.priority=Приоритет
-gui.storagenetwork.priority.up=Приоритет выше
-gui.storagenetwork.priority.down=Приоритет ниже
+gui.storagenetwork.priority.up=Приоритет выше (меньшее идет первым)
+gui.storagenetwork.priority.down=Приоритет ниже (меньшее идет первым)
 
 gui.storagenetwork.req.tooltip_NAME=Сортировать по имени
 gui.storagenetwork.req.tooltip_MOD=Сортировать по моду
@@ -47,7 +55,7 @@ gui.storagenetwork.shift=Зажмите Shift для большей информ
 
 gui.storagenetwork.fil.tooltip_0=Префикс @: Поиск по моду.
 gui.storagenetwork.fil.tooltip_1=Префикс #: Поиск по подсказке.
-gui.storagenetwork.fil.tooltip_2=Префикс $: Поиск по рудному словарю.
+gui.storagenetwork.fil.tooltip_2=Префикс $: Поиск по словарю руды.
 gui.storagenetwork.fil.tooltip_3=Очистить текст с помощью ПКМ или кнопки X
 
 gui.storagenetwork.tooltip_clear=Очистить поиск
@@ -58,14 +66,38 @@ gui.storagenetwork.fil.tooltip_jei_off=Поиск JEI отключен
 tooltip.storagenetwork.kabel_S=Используется, чтобы подключить инвентарь к сети.
 tooltip.storagenetwork.kabel_E=Экспортирует объекты из сети в прикрепленные инвентари.
 tooltip.storagenetwork.kabel_I=Импортирует предметы из прикрепленных инвентарей в сеть.
+tooltip.storagenetwork.kabel_P=Может автоматизировать простую обработку транзакций.
 tooltip.storagenetwork.kabel_L=Кабель по умолчанию для подключения частей вашей сети.
 tooltip.storagenetwork.master=Сердце сети. Только ОДИН на сеть.
 tooltip.storagenetwork.request=Используется для просмотра и запроса предметов из сети.
 tooltip.storagenetwork.remote_0=Используется для доступа к сети на расстоянии в 64 блока.
 tooltip.storagenetwork.remote_1=Используется для доступа к сети с неограниченного расстояния и между измерениями.
 tooltip.storagenetwork.remote_2=Используется для доступа к сети с неограниченным расстоянием.
+tooltip.storagenetwork.remote_3=Сеть без создания с неограниченного расстояния.
 
 tooltip.storagenetwork.upgrade_0=Увеличивает скорость импорта/экспорта.
 tooltip.storagenetwork.upgrade_1=Активность кабеля зависит от количества предметов.
 tooltip.storagenetwork.upgrade_2=Увеличивает размер стака задачи.
 tooltip.storagenetwork.upgrade_3=Сохраняет определенное количество предметов в прикрепленном инвентаре (только в кабеле экспорта).
+
+
+tile.storagenetwork:controller.name=Контроллер
+tooltip.storagenetwork.controller=Управляет всеми обрабатываемыми кабелями в сети
+
+chat.master.emptyslots=Потенциальные пустые слоты: 
+chat.master.connectables=Подключенные кабели: 
+processing.alwayson.true=Активно
+processing.alwayson.false=Остальные: 
+
+storagenetwork.process.status0=Остановлено или отключено
+storagenetwork.process.status1=Ожидание импорта (кэширование)
+storagenetwork.process.status2=Экспорт рецепта (кэшированный)
+
+processing.buttons.toggle.true=Всегда активно
+processing.buttons.toggle.false=Обработать только запрошенный номер
+processing.buttons.minus=Уменьшить запрос
+processing.buttons.plus=Увеличить запрос
+processing.empty.ingredients=Пустые ингредиенты
+
+gui.storagenetwork.processing.recipe=Ингридиенты для каждого цикла будут посланы, как, если бы приходили от этой стороны блока
+gui.storagenetwork.processing.extract=При вытягивании результатов обработки он будет взят как бы с этой стороны блока

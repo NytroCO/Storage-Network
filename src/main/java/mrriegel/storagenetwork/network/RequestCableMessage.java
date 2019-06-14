@@ -28,12 +28,10 @@ public class RequestCableMessage implements IMessage, IMessageHandler<RequestCab
           IStorageContainer ctr = (IStorageContainer) player.openContainer;
           tileMaster = ctr.getTileMaster();
         }
-
         if (tileMaster == null) {
           //maybe the table broke after doing this, rare case
           return;
         }
-
         PacketRegistry.INSTANCE.sendTo(new CableRefreshClientMessage(tileMaster.getProcessors()), player);
         player.openContainer.detectAndSendChanges();
       }

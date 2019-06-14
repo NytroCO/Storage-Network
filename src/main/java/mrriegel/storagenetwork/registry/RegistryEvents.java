@@ -37,7 +37,6 @@ public class RegistryEvents {
   @SubscribeEvent
   public void onRegistryBlock(RegistryEvent.Register<Block> event) {
     IForgeRegistry<Block> reg = event.getRegistry();
-
     reg.register(new BlockMaster("master"));
     reg.register(new BlockRequest("request"));
     reg.register(new BlockCable("kabel"));
@@ -47,7 +46,6 @@ public class RegistryEvents {
     reg.register(new BlockCableProcessing("process_kabel"));
     reg.register(new BlockControl("controller"));
     // reg.register(new BlockCableLinkPlain("storage_kabel_plain"));
-
     GameRegistry.registerTileEntity(TileCable.class, new ResourceLocation(StorageNetwork.MODID, "tileKabel"));
     GameRegistry.registerTileEntity(TileCableLink.class, new ResourceLocation(StorageNetwork.MODID, "tileKabelLink"));
     GameRegistry.registerTileEntity(TileCableIO.class, new ResourceLocation(StorageNetwork.MODID, "tileKabelIO"));
@@ -70,8 +68,6 @@ public class RegistryEvents {
     registry.register(new ItemBlock(ModBlocks.processKabel).setRegistryName(ModBlocks.processKabel.getRegistryName()));
     registry.register(new ItemBlock(ModBlocks.controller).setRegistryName(ModBlocks.controller.getRegistryName()));
     // registry.register(new ItemBlock(ModBlocks.storage_kabel_plain).setRegistryName(ModBlocks.storage_kabel_plain.getRegistryName()));
-
-
     registry.register(new ItemUpgrade());
     registry.register(new ItemRemote());
   }
@@ -90,7 +86,6 @@ public class RegistryEvents {
     for (EnumUpgradeType type : EnumUpgradeType.values()) {
       ModelLoader.setCustomModelResourceLocation(ModItems.upgrade, type.getId(), new ModelResourceLocation(StorageNetwork.MODID + ":upgrade_" + type.getId(), "inventory"));
     }
-
     for (RemoteType type : RemoteType.values()) {
       ModelLoader.setCustomModelResourceLocation(ModItems.remote, type.ordinal(), new ModelResourceLocation(StorageNetwork.MODID + ":remote_" + type.ordinal(), "inventory"));
     }

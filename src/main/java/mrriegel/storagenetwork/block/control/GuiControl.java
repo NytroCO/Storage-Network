@@ -136,7 +136,7 @@ public class GuiControl extends GuiContainer {
     }
 
     public void mouseClicked(int mouseX, int mouseY, int btn) {
-      StorageNetwork.log("row clicked at " + p.output.getDisplayName());
+      //      StorageNetwork.log("row clicked at " + p.output.getDisplayName());
     }
 
     public boolean compareSearch() {

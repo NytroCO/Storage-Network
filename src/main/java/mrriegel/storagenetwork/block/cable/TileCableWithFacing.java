@@ -1,18 +1,18 @@
 package mrriegel.storagenetwork.block.cable;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import mrriegel.storagenetwork.StorageNetwork;
-import mrriegel.storagenetwork.api.data.DimPos;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.Nullable;
+import mrriegel.storagenetwork.block.master.TileMaster;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.CapabilityItemHandler;
 
-import javax.annotation.Nullable;
-
 public class TileCableWithFacing extends TileCable {
+
   @Nullable
   EnumFacing direction = null;
 
@@ -33,68 +33,77 @@ public class TileCableWithFacing extends TileCable {
   }
 
   protected boolean isValidLinkNeighbor(EnumFacing facing) {
-    if(facing == null) {
+    if (facing == null) {
       return false;
     }
-
+    if (!TileMaster.isTargetAllowed(world.getBlockState(pos.offset(facing)))) {
+      return false;
+    }
     TileEntity neighbor = world.getTileEntity(pos.offset(facing));
-    if(neighbor != null && neighbor.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite())) {
+    if (neighbor != null && neighbor.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite())) {
       return true;
     }
-
     return false;
   }
 
   public void findNewDirection() {
-    if(isValidLinkNeighbor(direction)) {
+    if (isValidLinkNeighbor(direction)) {
       return;
     }
-
-    for(EnumFacing facing : EnumFacing.values()) {
-      if(isValidLinkNeighbor(facing)) {
+    for (EnumFacing facing : EnumFacing.values()) {
+      if (isValidLinkNeighbor(facing)) {
         setDirection(facing);
         return;
       }
     }
-
     setDirection(null);
   }
 
-
-  public void rotateTo(EnumFacing direction) {
-    this.direction = direction;
-    this.markDirty();
-  }
-
   public void rotate() {
-    this.rotateTo(getNextPossibleDirection(direction));
+    EnumFacing previous = direction;
+    List<EnumFacing> targetFaces = Arrays.asList(EnumFacing.values());
+    Collections.shuffle(targetFaces);
+    for (EnumFacing facing : EnumFacing.values()) {
+      if (previous == facing) {
+        continue;
+      }
+      if (isValidLinkNeighbor(facing)) {
+        setDirection(facing);
+        this.markDirty();
+        if (previous != direction) {
+          TileMaster master = getTileMaster();
+          if (master != null) {
+            master.refreshNetwork();
+          }
+        }
+        return;
+      }
+    }
   }
 
-  private static EnumFacing getNextPossibleDirection(EnumFacing direction) {
-    int newOrd = direction.ordinal() + 1;
-    if(newOrd >= EnumFacing.values().length) {
-      newOrd = 0;
+  public TileMaster getTileMaster() {
+    if (getMaster() == null) {
+      return null;
     }
-    return EnumFacing.getFront(newOrd);
+    return getMaster().getTileEntity(TileMaster.class);
   }
 
   @Override
   public void readFromNBT(NBTTagCompound compound) {
     super.readFromNBT(compound);
-
-    if(compound.hasKey("direction")) {
+    if (compound.hasKey("direction")) {
       this.direction = EnumFacing.getFront(compound.getInteger("direction"));
-    } else {
+    }
+    else {
       this.direction = null;
     }
   }
 
   @Override
   public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-    if(direction != null) {
+    if (direction != null) {
       compound.setInteger("direction", this.direction.ordinal());
     }
     return super.writeToNBT(compound);
   }
-
 }

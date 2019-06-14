@@ -1,5 +1,6 @@
 package mrriegel.storagenetwork.block.cable.io;
 
+import javax.annotation.Nullable;
 import mrriegel.storagenetwork.api.data.EnumStorageDirection;
 import mrriegel.storagenetwork.block.cable.TileCableWithFacing;
 import mrriegel.storagenetwork.capabilities.CapabilityConnectableAutoIO;
@@ -10,9 +11,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 
-import javax.annotation.Nullable;
-
 public class TileCableIO extends TileCableWithFacing {
+
   protected CapabilityConnectableAutoIO ioStorage;
 
   public TileCableIO() {
@@ -26,7 +26,6 @@ public class TileCableIO extends TileCableWithFacing {
   @Override
   public void readFromNBT(NBTTagCompound compound) {
     super.readFromNBT(compound);
-
     this.ioStorage.deserializeNBT(compound.getCompoundTag("ioStorage"));
   }
 
@@ -45,10 +44,9 @@ public class TileCableIO extends TileCableWithFacing {
 
   @Override
   public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
-    if(capability == StorageNetworkCapabilities.CONNECTABLE_AUTO_IO) {
+    if (capability == StorageNetworkCapabilities.CONNECTABLE_AUTO_IO) {
       return true;
     }
-
     return super.hasCapability(capability, facing);
   }
 
@@ -56,21 +54,20 @@ public class TileCableIO extends TileCableWithFacing {
   @Nullable
   @Override
   public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
-    if(capability == StorageNetworkCapabilities.CONNECTABLE_AUTO_IO) {
+    if (capability == StorageNetworkCapabilities.CONNECTABLE_AUTO_IO) {
       // If this tile entity is being loaded in a chunk from nbt it is using the argument-less constructor.
       // This causes the tile entity to have its EnumStorageDirection set to BOTH, see the constructor above.
       // With this little patch we are restoring the proper direction.
       // TODO: This should get cleaned up by further splitting TileCableIO into Export and Import tiles.
       Block blockType = this.world.getBlockState(pos).getBlock();
-      if(blockType == ModBlocks.exKabel) {
+      if (blockType == ModBlocks.exKabel) {
         this.ioStorage.direction = EnumStorageDirection.OUT;
-      } else if(blockType == ModBlocks.imKabel) {
+      }
+      else if (blockType == ModBlocks.imKabel) {
         this.ioStorage.direction = EnumStorageDirection.IN;
       }
-
       return (T) ioStorage;
     }
-
     return super.getCapability(capability, facing);
   }
 }

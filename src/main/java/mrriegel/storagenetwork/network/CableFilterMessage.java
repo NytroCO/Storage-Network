@@ -38,11 +38,10 @@ public class CableFilterMessage implements IMessage, IMessageHandler<CableFilter
   public IMessage onMessage(final CableFilterMessage message, final MessageContext ctx) {
     EntityPlayerMP player = ctx.getServerHandler().player;
     IThreadListener mainThread = (WorldServer) player.world;
-
     mainThread.addScheduledTask(() -> {
       if (player.openContainer instanceof ContainerCable) {
         TileCable tileCable = ((ContainerCable) player.openContainer).tile;
-        if(tileCable instanceof TileCableProcess) {
+        if (tileCable instanceof TileCableProcess) {
           TileCableProcess processCable = (TileCableProcess) tileCable;
           processCable.filters.ores = message.ore;
           processCable.filters.meta = message.meta;
@@ -50,52 +49,42 @@ public class CableFilterMessage implements IMessage, IMessageHandler<CableFilter
           processCable.markDirty();
         }
       }
-
       if (player.openContainer instanceof ContainerCableLink) {
         ContainerCableLink con = (ContainerCableLink) player.openContainer;
-        if(con == null || con.link == null) {
+        if (con == null || con.link == null) {
           return;
         }
-
         if (message.stack != null && message.index >= 0) {
           con.link.filters.setStackInSlot(message.index, message.stack);
         }
-
         con.link.filters.ores = message.ore;
         con.link.filters.meta = message.meta;
         con.link.filters.nbt = message.nbt;
         con.tile.markDirty();
       }
-
       if (player.openContainer instanceof ContainerCableIO) {
         ContainerCableIO con = (ContainerCableIO) player.openContainer;
-        if(con == null || con.autoIO == null) {
+        if (con == null || con.autoIO == null) {
           return;
         }
-
         if (message.stack != null && message.index >= 0) {
           con.autoIO.filters.setStackInSlot(message.index, message.stack);
         }
-
         con.autoIO.filters.ores = message.ore;
         con.autoIO.filters.meta = message.meta;
         con.autoIO.filters.nbt = message.nbt;
         con.tile.markDirty();
         UtilTileEntity.updateTile(con.tile.getWorld(), con.tile.getPos());
       }
-
       if (player.openContainer instanceof ContainerCableProcessing) {
         ContainerCableProcessing con = (ContainerCableProcessing) player.openContainer;
-        if(!(con.tile instanceof TileCableProcess)) {
+        if (!(con.tile instanceof TileCableProcess)) {
           return;
         }
-
         TileCableProcess tileCable = (TileCableProcess) con.tile;
-
         if (message.stack != null && message.index >= 0) {
           tileCable.filters.setStackInSlot(message.index, message.stack);
         }
-
         tileCable.filters.ores = message.ore;
         tileCable.filters.meta = message.meta;
         tileCable.filters.nbt = message.nbt;
@@ -111,7 +100,6 @@ public class CableFilterMessage implements IMessage, IMessageHandler<CableFilter
     this.ore = buf.readBoolean();
     this.meta = buf.readBoolean();
     this.nbt = buf.readBoolean();
-
     this.stack = new ItemStack(ByteBufUtils.readTag(buf));
   }
 

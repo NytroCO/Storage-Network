@@ -1,19 +1,18 @@
 package mrriegel.storagenetwork.util.inventory;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import mrriegel.storagenetwork.api.data.IItemStackMatcher;
 import mrriegel.storagenetwork.data.ItemStackMatcher;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class FilterItemStackHandler extends ItemStackHandlerEx {
-  public static final int FILTER_SIZE = 18;
 
+  public static final int FILTER_SIZE = 18;
   public boolean ores = false;
-  public boolean meta = false;
+  public boolean meta = true;
   public boolean nbt = false;
   public boolean isWhitelist = true;
 
@@ -47,7 +46,7 @@ public class FilterItemStackHandler extends ItemStackHandlerEx {
   }
 
   public void clear() {
-    for(int slot = 0; slot < getSlots(); slot++) {
+    for (int slot = 0; slot < getSlots(); slot++) {
       this.setStackInSlot(slot, ItemStack.EMPTY);
     }
   }
@@ -59,10 +58,9 @@ public class FilterItemStackHandler extends ItemStackHandlerEx {
   }
 
   public boolean isStackFiltered(ItemStack stack) {
-    if(isWhitelist) {
+    if (isWhitelist) {
       return getStackMatchers().stream().noneMatch(matcher -> matcher.match(stack));
     }
-
     return getStackMatchers().stream().anyMatch(matcher -> matcher.match(stack));
   }
 
@@ -84,7 +82,6 @@ public class FilterItemStackHandler extends ItemStackHandlerEx {
     rulesTag.setBoolean("meta", meta);
     rulesTag.setBoolean("nbt", nbt);
     rulesTag.setBoolean("whitelist", isWhitelist);
-
     result.setTag("rules", rulesTag);
     return result;
   }

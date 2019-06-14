@@ -7,6 +7,7 @@ import mrriegel.storagenetwork.api.data.EnumStorageDirection;
 import mrriegel.storagenetwork.api.data.IItemStackMatcher;
 import mrriegel.storagenetwork.api.network.INetworkMaster;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 
 /**
  * Only expose this capability if you want your cable/block to auto-export and import blocks controlled by the networks master. You could quite as well just expose {@link IConnectable} and do the
@@ -54,6 +55,17 @@ public interface IConnectableItemAutoIO {
    * @return The stack that has been requested, if you have it
    */
   ItemStack extractNextStack(int size, boolean simulate);
+
+  /**
+   * Optional 'Stock Upgrade' mode. Meaning the export only exports if the target has less than this number, and only exports enough to meet it.
+   * 
+   * only for exports, currently.
+   * 
+   * @return
+   */
+  boolean isStockMode();
+
+  EnumFacing facingInventory();
 
   /**
    * Storages with a higher priority (== lower number) are processed first. You probably want to add a way to configure the priority of your storage.

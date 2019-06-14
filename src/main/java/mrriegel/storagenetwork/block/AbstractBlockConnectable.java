@@ -66,11 +66,9 @@ public abstract class AbstractBlockConnectable extends BaseBlock {
         }
       }
     }
-
-    if(worldIn.isRemote) {
+    if (worldIn.isRemote) {
       return;
     }
-
     if (myselfConnect.getMasterPos() != null) {
       TileMaster tileMaster = StorageNetwork.helpers.getTileMasterForConnectable(myselfConnect);
       myselfConnect.setMasterPos(null);

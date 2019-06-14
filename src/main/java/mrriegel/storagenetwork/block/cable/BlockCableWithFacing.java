@@ -19,30 +19,25 @@ public class BlockCableWithFacing extends BlockCable {
   @Override
   public boolean rotateBlock(World world, BlockPos pos, EnumFacing axis) {
     TileEntity tile = world.getTileEntity(pos);
-    if(!(tile instanceof TileCableWithFacing)) {
+    if (!(tile instanceof TileCableWithFacing)) {
       return super.rotateBlock(world, pos, axis);
     }
-
-    TileCableWithFacing facingTile = (TileCableWithFacing)tile;
+    TileCableWithFacing facingTile = (TileCableWithFacing) tile;
     facingTile.rotate();
-
     return true;
   }
 
   @Override
   public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
     super.onBlockPlacedBy(world, pos, state, placer, stack);
-
-    if(world.isRemote) {
+    if (world.isRemote) {
       return;
     }
-
     TileEntity tile = world.getTileEntity(pos);
-    if(!(tile instanceof TileCableWithFacing)) {
+    if (!(tile instanceof TileCableWithFacing)) {
       return;
     }
-
-    TileCableWithFacing facingTile = (TileCableWithFacing)tile;
+    TileCableWithFacing facingTile = (TileCableWithFacing) tile;
     facingTile.findNewDirection();
     facingTile.markDirty();
   }
@@ -50,22 +45,17 @@ public class BlockCableWithFacing extends BlockCable {
   @Override
   public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
     super.onNeighborChange(world, pos, neighbor);
-
-    if(!(world instanceof WorldServer)) {
+    if (!(world instanceof WorldServer)) {
       return;
     }
-
-    WorldServer worldServer = (WorldServer)world;
-
+    WorldServer worldServer = (WorldServer) world;
     TileEntity tile = world.getTileEntity(pos);
-    if(!(tile instanceof TileCableWithFacing)) {
+    if (!(tile instanceof TileCableWithFacing)) {
       return;
     }
-
-    TileCableWithFacing facingTile = (TileCableWithFacing)tile;
+    TileCableWithFacing facingTile = (TileCableWithFacing) tile;
     facingTile.findNewDirection();
     //facingTile.markDirty();
-
     worldServer.markChunkDirty(pos, facingTile);
     worldServer.notifyBlockUpdate(pos, world.getBlockState(pos), world.getBlockState(pos), 3);
   }
@@ -74,15 +64,13 @@ public class BlockCableWithFacing extends BlockCable {
   protected UnlistedPropertyBlockNeighbors.BlockNeighbors getBlockNeighbors(IBlockAccess world, BlockPos pos) {
     UnlistedPropertyBlockNeighbors.BlockNeighbors result = super.getBlockNeighbors(world, pos);
     TileEntity tile = world.getTileEntity(pos);
-    if(!(tile instanceof TileCableWithFacing)) {
+    if (!(tile instanceof TileCableWithFacing)) {
       return result;
     }
-
-    TileCableWithFacing facingTile = (TileCableWithFacing)tile;
-    if(facingTile.hasDirection()) {
+    TileCableWithFacing facingTile = (TileCableWithFacing) tile;
+    if (facingTile.hasDirection()) {
       result.setNeighborType(facingTile.getDirection(), UnlistedPropertyBlockNeighbors.EnumNeighborType.SPECIAL);
     }
-
     return result;
   }
 }

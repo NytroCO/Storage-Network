@@ -1,12 +1,12 @@
 package mrriegel.storagenetwork.util.inventory;
 
+import javax.annotation.Nonnull;
 import mrriegel.storagenetwork.api.data.EnumUpgradeType;
 import mrriegel.storagenetwork.block.cable.io.ContainerCableIO;
 import net.minecraft.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class UpgradesItemStackHandler extends ItemStackHandlerEx {
+
   public UpgradesItemStackHandler() {
     super(ContainerCableIO.UPGRADE_COUNT);
   }
@@ -19,11 +19,10 @@ public class UpgradesItemStackHandler extends ItemStackHandlerEx {
   public int getUpgradesOfType(EnumUpgradeType upgradeType) {
     int res = 0;
     for (ItemStack stack : getStacks()) {
-      if(stack.getItemDamage() != upgradeType.getId()) {
+      if (stack.getItemDamage() != upgradeType.getId()) {
         continue;
       }
-
-      res += stack.getCount();
+      res += Math.max(stack.getCount(), 0);
     }
     return res;
   }

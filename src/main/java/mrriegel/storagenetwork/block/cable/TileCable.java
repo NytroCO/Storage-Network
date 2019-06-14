@@ -9,6 +9,7 @@ import net.minecraft.util.math.AxisAlignedBB;
  *
  */
 public class TileCable extends TileConnectable {
+
   public TileCable() {
     super();
   }
@@ -16,7 +17,6 @@ public class TileCable extends TileConnectable {
   @Override
   public void readFromNBT(NBTTagCompound compound) {
     super.readFromNBT(compound);
-
   }
 
   @Override

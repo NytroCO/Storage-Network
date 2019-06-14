@@ -39,9 +39,7 @@ public class RefreshFilterClientMessage implements IMessage, IMessageHandler<Ref
       @Override
       public void run() {
         if (Minecraft.getMinecraft().currentScreen instanceof GuiCableBase) {
-          
           GuiCableBase gui = (GuiCableBase) Minecraft.getMinecraft().currentScreen;
-
           gui.setFilterItems(message.stacks);
         }
       }
@@ -52,23 +50,18 @@ public class RefreshFilterClientMessage implements IMessage, IMessageHandler<Ref
   @Override
   public void fromBytes(ByteBuf buf) {
     this.size = buf.readInt();
-
     stacks = Lists.newArrayList();
     for (int i = 0; i < size; i++) {
       ItemStack stack = new ItemStack(ByteBufUtils.readTag(buf));
       stacks.add(stack);
     }
-
   }
 
   @Override
   public void toBytes(ByteBuf buf) {
     buf.writeInt(this.size);
-
     for (ItemStack stack : stacks) {
       ByteBufUtils.writeTag(buf, stack.serializeNBT());
     }
-
-
   }
 }

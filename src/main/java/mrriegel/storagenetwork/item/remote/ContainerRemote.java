@@ -37,10 +37,10 @@ public class ContainerRemote extends ContainerNetworkBase {
     if (!isSimple) {
       //no grid on simple
       matrix = new InventoryCraftingNetwork(this, storage);
-      bindGrid();
       SlotCraftingNetwork slotCraftOutput = new SlotCraftingNetwork(playerInv.player, matrix, result, 0, 101, 128);
       slotCraftOutput.setTileMaster(this.getTileMaster());
       this.addSlotToContainer(slotCraftOutput);
+      bindGrid();
     }
     bindPlayerInvo(playerInv);
     bindHotbar();
@@ -59,23 +59,22 @@ public class ContainerRemote extends ContainerNetworkBase {
   @Override
   @SideOnly(Side.CLIENT)
   public void setAll(List<ItemStack> listIn) {
-    //    super.setAll(p_190896_1_);
-    if (matrix != null)
+    if (matrix != null) {
       matrix.skipEvents = true;
+    }
     for (int i = 0; i < listIn.size(); ++i) {
       this.getSlot(i).putStack(listIn.get(i));
     }
-    if (matrix != null)
+    if (matrix != null) {
       matrix.skipEvents = false;
+    }
   }
 
   @Override
   public boolean canInteractWith(EntityPlayer playerIn) {
     TileMaster tileMaster = this.getTileMaster();
-    if (tileMaster == null) {
-      return false;
-    }
-    if (!playerIn.world.isRemote && playerIn.world.getTotalWorldTime() % 40 == 0) {
+    if (tileMaster != null &&
+        !playerIn.world.isRemote && playerIn.world.getTotalWorldTime() % 40 == 0) {
       List<ItemStack> list = tileMaster.getStacks();
       PacketRegistry.INSTANCE.sendTo(new StackRefreshClientMessage(list, new ArrayList<>()), (EntityPlayerMP) playerIn);
     }

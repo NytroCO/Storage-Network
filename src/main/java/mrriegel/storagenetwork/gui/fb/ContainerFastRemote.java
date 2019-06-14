@@ -1,5 +1,7 @@
 package mrriegel.storagenetwork.gui.fb;
 
+import java.util.ArrayList;
+import mrriegel.storagenetwork.StorageNetwork;
 import mrriegel.storagenetwork.block.master.TileMaster;
 import mrriegel.storagenetwork.item.remote.ItemRemote;
 import mrriegel.storagenetwork.network.StackRefreshClientMessage;
@@ -13,8 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import java.util.ArrayList;
 
 public class ContainerFastRemote extends ContainerFastNetworkCrafter {
 
@@ -43,6 +43,7 @@ public class ContainerFastRemote extends ContainerFastNetworkCrafter {
   public boolean canInteractWith(EntityPlayer playerIn) {
     TileMaster tileMaster = this.getTileMaster();
     if (tileMaster == null) {
+      StorageNetwork.info("Container closing, master tile not found");
       return false;
     }
     if (!playerIn.world.isRemote && (forceSync || playerIn.world.getTotalWorldTime() % 40 == 0)) {

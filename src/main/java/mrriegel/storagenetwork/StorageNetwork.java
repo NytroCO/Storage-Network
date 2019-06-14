@@ -33,6 +33,7 @@ public class StorageNetwork {
   public static CommonProxy proxy;
   public static final PluginRegistry pluginRegistry = new PluginRegistry();
   public static StorageNetworkHelpers helpers = new StorageNetworkHelpers();
+  @SuppressWarnings("unused")
   private static FixManager fixManager;
 
   @EventHandler
@@ -87,8 +88,6 @@ public class StorageNetwork {
     return net.minecraft.util.text.translation.I18n.translateToLocal(message);
   }
 
-  private static long lastTime;
-
   public static void log(String s) {
     if (ConfigHandler.logEverything) {
       instance.logger.info(s);
@@ -98,15 +97,9 @@ public class StorageNetwork {
   public static void info(String s) {
     instance.logger.info(s);
   }
+
   public static void error(String s) {
     instance.logger.error(s);
   }
 
-  private static void benchmark(String s) {
-    long now = System.currentTimeMillis();
-    long DIFF = now - lastTime;
-    lastTime = now;
-    StorageNetwork.log(now
-        + " [" + DIFF + "]" + " : " + s);
-  }
 }

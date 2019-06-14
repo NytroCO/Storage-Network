@@ -1,5 +1,7 @@
 package mrriegel.storagenetwork.network;
 
+import java.util.ArrayList;
+import java.util.List;
 import io.netty.buffer.ByteBuf;
 import mrriegel.storagenetwork.block.master.TileMaster;
 import mrriegel.storagenetwork.gui.IStorageContainer;
@@ -14,9 +16,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.items.ItemHandlerHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class InsertMessage implements IMessage, IMessageHandler<InsertMessage, IMessage> {
 
@@ -60,8 +59,6 @@ public class InsertMessage implements IMessage, IMessageHandler<InsertMessage, I
         }
         //TODO: WHY TWO messages/?
         player.inventory.setItemStack(send);
-
-
         PacketRegistry.INSTANCE.sendTo(new StackResponseClientMessage(send), player);
         List<ItemStack> list = tileMaster.getStacks();
         PacketRegistry.INSTANCE.sendTo(new StackRefreshClientMessage(list, new ArrayList<>()), player);

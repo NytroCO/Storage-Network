@@ -34,7 +34,6 @@ public class CableLimitMessage implements IMessage, IMessageHandler<CableLimitMe
         if (con == null || con.autoIO == null) {
           return;
         }
-
         con.autoIO.operationLimit = message.limit;
         con.autoIO.operationStack = message.stack;
         con.tile.markDirty();

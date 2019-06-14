@@ -78,7 +78,6 @@ public class ModelCable extends ModelBase {
 
   public void render(UnlistedPropertyBlockNeighbors.BlockNeighbors neighbors, Block kind) {
     float f5 = 0.0625F;
-
     if (neighbors.north() == UnlistedPropertyBlockNeighbors.EnumNeighborType.CABLE) {
       this.north.render(f5);
     }
@@ -86,7 +85,6 @@ public class ModelCable extends ModelBase {
       this.north.render(f5);
       this.northC.render(f5);
     }
-
     if (neighbors.south() == UnlistedPropertyBlockNeighbors.EnumNeighborType.CABLE) {
       this.south.render(f5);
     }
@@ -94,7 +92,6 @@ public class ModelCable extends ModelBase {
       this.south.render(f5);
       this.southC.render(f5);
     }
-
     if (neighbors.east() == UnlistedPropertyBlockNeighbors.EnumNeighborType.CABLE) {
       this.east.render(f5);
     }
@@ -102,7 +99,6 @@ public class ModelCable extends ModelBase {
       this.east.render(f5);
       this.eastC.render(f5);
     }
-
     if (neighbors.west() == UnlistedPropertyBlockNeighbors.EnumNeighborType.CABLE) {
       this.west.render(f5);
     }
@@ -110,7 +106,6 @@ public class ModelCable extends ModelBase {
       this.west.render(f5);
       this.westC.render(f5);
     }
-
     if (neighbors.up() == UnlistedPropertyBlockNeighbors.EnumNeighborType.CABLE) {
       this.up.render(f5);
     }
@@ -118,7 +113,6 @@ public class ModelCable extends ModelBase {
       this.up.render(f5);
       this.upC.render(f5);
     }
-
     if (neighbors.down() == UnlistedPropertyBlockNeighbors.EnumNeighborType.CABLE) {
       this.down.render(f5);
     }
@@ -126,7 +120,6 @@ public class ModelCable extends ModelBase {
       this.down.render(f5);
       this.downC.render(f5);
     }
-
     if (neighbors.requiresCube() || kind != ModBlocks.kabel) {
       this.cube.render(f5);
     }

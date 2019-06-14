@@ -1,5 +1,6 @@
 package mrriegel.storagenetwork.block.cable.processing;
 
+import java.io.IOException;
 import com.google.common.collect.Lists;
 import mrriegel.storagenetwork.StorageNetwork;
 import mrriegel.storagenetwork.block.cable.ContainerCable;
@@ -20,13 +21,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiCheckBox;
 
-import java.io.IOException;
-
 public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContainer {
+
   protected GuiCableButton pbtnReset;
   protected GuiCableButton pbtnBottomface;
   protected GuiCableButton pbtnTopface;
-
   private TileCableProcess tile;
 
   public GuiCableProcessing(TileCableProcess tileEntity, ContainerCable inventorySlotsIn) {
@@ -54,7 +53,6 @@ public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContai
         this.drawTexturedModalRect(x, y, u, v, SLOT_SIZE, SLOT_SIZE);
       }
     }
-
     itemSlotsGhost = Lists.newArrayList();
     // left side
     for (int row = 0; row < 3; row++) {
@@ -92,10 +90,8 @@ public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContai
   @Override
   protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
     super.drawGuiContainerForegroundLayer(mouseX, mouseY);
-
     pbtnBottomface.displayString = tile.getFacingBottomRow().name().substring(0, 2);
     pbtnTopface.displayString = tile.getFacingTopRow().name().substring(0, 2);
-
     int x = -90;
     int y = 48;
     if (tile.filters.isOutputEmpty() || tile.filters.isInputEmpty()) {
@@ -110,7 +106,6 @@ public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContai
     else {
       this.drawString("tile.storagenetwork:recipe.valid", x, y);
     }
-
     ProcessRequestModel p = tile.getProcessModel();
     x = -90;
     y = 4;
@@ -128,15 +123,12 @@ public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContai
   @Override
   protected void drawTooltips(int mouseX, int mouseY) {
     super.drawTooltips(mouseX, mouseY);
-
     if (pbtnReset.isMouseOver()) {
       drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.refresh")), mouseX, mouseY);
     }
-
     if (pbtnTopface.isMouseOver()) {
       this.drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.processing.recipe")), mouseX, mouseY, fontRenderer);
     }
-
     if (pbtnBottomface.isMouseOver()) {
       this.drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.processing.extract")), mouseX, mouseY, fontRenderer);
     }
@@ -165,7 +157,6 @@ public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContai
     this.addButton(pbtnTopface);
     x = 64;
     y = 62;
-
     checkOreBtn = new GuiCheckBox(10, guiLeft + x, guiTop + y, I18n.format("gui.storagenetwork.checkbox.ore"), true);
     checkOreBtn.setIsChecked(tile.filters.ores);
     this.addButton(checkOreBtn);
@@ -178,7 +169,6 @@ public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContai
     checkNbtBtn = new GuiCheckBox(12, guiLeft + x, guiTop + y, I18n.format("gui.storagenetwork.checkbox.nbt"), true);
     checkNbtBtn.setIsChecked(tile.filters.nbt);
     this.addButton(checkNbtBtn);
-
   }
 
   @Override
@@ -189,12 +179,12 @@ public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContai
   @Override
   protected void actionPerformed(GuiButton button) throws IOException {
     super.actionPerformed(button);
-
     if (pbtnTopface != null && button.id == pbtnTopface.id) {
       int newFace = (tile.getFacingTopRow().ordinal() + 1) % EnumFacing.values().length;
       tile.processingTop = EnumFacing.values()[newFace];
       PacketRegistry.INSTANCE.sendToServer(new CableDataMessage(button.id, newFace));
-    } else if (pbtnBottomface != null && button.id == pbtnBottomface.id) {
+    }
+    else if (pbtnBottomface != null && button.id == pbtnBottomface.id) {
       //
       int newFace = (tile.getFacingBottomRow().ordinal() + 1) % EnumFacing.values().length;
       tile.processingBottom = EnumFacing.values()[newFace];
@@ -205,14 +195,11 @@ public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContai
   @Override
   protected void mouseWheelOverSlot(int slot, boolean wheelUp) {
     super.mouseWheelOverSlot(slot, wheelUp);
-
-    if(tile == null || tile.filters == null) {
+    if (tile == null || tile.filters == null) {
       return;
     }
-
     FilterItemStackHandler filters = tile.filters;
     ItemStack filter = filters.getStackInSlot(slot);
-
     boolean changed = false;
     if (wheelUp && filter.getCount() < 64) {
       filter.setCount(filter.getCount() + 1);
@@ -225,7 +212,6 @@ public class GuiCableProcessing extends GuiCableBase implements IPublicGuiContai
     if (changed) {
       PacketRegistry.INSTANCE.sendToServer(new CableFilterMessage(slot, filter, filters.ores, filters.meta, checkNbtBtn.isChecked()));
     }
-
   }
 
   @Override

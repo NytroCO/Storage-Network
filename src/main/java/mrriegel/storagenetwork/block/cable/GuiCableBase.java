@@ -21,57 +21,44 @@ import net.minecraftforge.fml.client.config.GuiCheckBox;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public abstract class GuiCableBase extends GuiContainer {
+
   public static final int SLOT_SIZE = 18;
   public static final int TEXTBOX_WIDTH = 26;
-
   protected List<ItemSlotNetwork> itemSlotsGhost;
-
   protected ResourceLocation texture = new ResourceLocation(StorageNetwork.MODID, "textures/gui/cable.png");
-
   protected GuiCableButton btnImport;
   public GuiCheckBox checkNbtBtn;
   public GuiCheckBox checkOreBtn;
   public GuiCheckBox checkMetaBtn;
-
   ContainerCable containerCable;
 
   public GuiCableBase(ContainerCable containerCable) {
     super(containerCable);
     this.xSize = 176;
     this.ySize = 171;
-
     this.itemSlotsGhost = Lists.newArrayList();
     this.containerCable = containerCable;
   }
 
-  public void importSlotsButtonPressed() {
-  }
+  public void importSlotsButtonPressed() {}
 
   @Override
   protected void actionPerformed(GuiButton button) throws IOException {
     super.actionPerformed(button);
-
     FilterItemStackHandler stackHandler = getFilterHandler();
-    if(stackHandler == null) {
+    if (stackHandler == null) {
       return;
     }
-
-    if(btnImport != null && button.id == btnImport.id) {
+    if (btnImport != null && button.id == btnImport.id) {
       // First clear out all filters
-
       stackHandler.clear();
-      StorageNetwork.log("import btn pressed in guicablebase ");
       importSlotsButtonPressed();
-
-      StorageNetwork.log("CableDataMessage " + button.id);
       PacketRegistry.INSTANCE.sendToServer(new CableDataMessage(button.id));
     }
-
     if (button.id == checkMetaBtn.id || button.id == checkOreBtn.id || button.id == checkNbtBtn.id) {
       stackHandler.nbt = checkNbtBtn.isChecked();
       stackHandler.ores = checkOreBtn.isChecked();
       stackHandler.meta = checkMetaBtn.isChecked();
-
       PacketRegistry.INSTANCE.sendToServer(new CableFilterMessage(-1, null, checkOreBtn.isChecked(), checkMetaBtn.isChecked(), this.checkNbtBtn.isChecked()));
     }
   }
@@ -93,38 +80,31 @@ public abstract class GuiCableBase extends GuiContainer {
   protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
     super.mouseClicked(mouseX, mouseY, mouseButton);
     ItemStack stackCarriedByMouse = mc.player.inventory.getItemStack().copy();
-
     FilterItemStackHandler stackHandler = getFilterHandler();
-    if(stackHandler == null) {
+    if (stackHandler == null) {
       return;
     }
-
     boolean isRightClick = mouseButton == UtilTileEntity.MOUSE_BTN_RIGHT;
     boolean isLeftClick = mouseButton == UtilTileEntity.MOUSE_BTN_LEFT;
-
     for (int slot = 0; slot < itemSlotsGhost.size(); slot++) {
       ItemSlotNetwork itemSlot = itemSlotsGhost.get(slot);
       if (!itemSlot.isMouseOverSlot(mouseX, mouseY)) {
         continue;
       }
-
       boolean doesExistAlready = stackHandler.exactStackAlreadyInList(stackCarriedByMouse);
-
       if (!stackCarriedByMouse.isEmpty() && !doesExistAlready) {
         int quantity = (isRightClick) ? 1 : stackCarriedByMouse.getCount();
         stackHandler.setStackInSlot(slot, ItemHandlerHelper.copyStackWithSize(stackCarriedByMouse, quantity));
       }
       else {
         ItemStack filterStack = stackHandler.getStackInSlot(slot);
-        if(filterStack == null || filterStack.isEmpty()) {
+        if (filterStack == null || filterStack.isEmpty()) {
           break;
         }
-
-        if(isLeftClick) {
+        if (isLeftClick) {
           stackHandler.setStackInSlot(slot, ItemStack.EMPTY);
         }
       }
-
       PacketRegistry.INSTANCE.sendToServer(new CableFilterMessage(slot, stackHandler.getStackInSlot(slot), stackHandler.ores, stackHandler.meta, stackHandler.nbt));
       break;
     }
@@ -133,7 +113,6 @@ public abstract class GuiCableBase extends GuiContainer {
   @Override
   public void handleMouseInput() throws IOException {
     super.handleMouseInput();
-
     int wheel = Mouse.getDWheel();
     if (wheel == 0) {
       return;
@@ -146,15 +125,23 @@ public abstract class GuiCableBase extends GuiContainer {
       if (!itemSlot.isMouseOverSlot(mouseX, mouseY) || itemSlot.getStack().isEmpty()) {
         continue;
       }
-
+      if (wheelUp)
+        itemSlot.getStack().grow(1);
+      else
+        itemSlot.getStack().shrink(1);
+      if (itemSlot.getStack().getCount() >= 64) {
+        itemSlot.getStack().setCount(64);
+      }
+      //and save changes OFC
+      FilterItemStackHandler stackHandler = getFilterHandler();
+      PacketRegistry.INSTANCE.sendToServer(new CableFilterMessage(i, itemSlot.getStack(), stackHandler.ores, stackHandler.meta, stackHandler.nbt));
+      //for anyone to override
       mouseWheelOverSlot(i, wheelUp);
-
       return;
     }
   }
 
-  protected void mouseWheelOverSlot(int slot, boolean wheelUp) {
-  }
+  protected void mouseWheelOverSlot(int slot, boolean wheelUp) {}
 
   @Override
   public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -169,7 +156,6 @@ public abstract class GuiCableBase extends GuiContainer {
         this.renderToolTip(s.getStack(), mouseX, mouseY);
       }
     }
-
     if (btnImport != null && btnImport.isMouseOver()) {
       drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.gui.import")), mouseX, mouseY);
     }

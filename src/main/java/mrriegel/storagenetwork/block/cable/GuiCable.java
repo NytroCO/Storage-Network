@@ -17,7 +17,6 @@ import net.minecraftforge.fml.client.config.GuiCheckBox;
 
 public class GuiCable extends GuiCableBase implements IPublicGuiContainer {
 
-
   protected GuiCableButton btnPlus, btnMinus, btnWhite;
 
   public GuiCable(ContainerCable containerCable) {
@@ -32,9 +31,7 @@ public class GuiCable extends GuiCableBase implements IPublicGuiContainer {
     int xMiddle = (this.width - this.xSize) / 2;
     int yMiddle = (this.height - this.ySize) / 2;
     this.drawTexturedModalRect(xMiddle, yMiddle, 0, 0, this.xSize, this.ySize);
-
     int u = 176, v = 34;
-
     // Draw ghost slots
     int rows = 9, cols = 2;
     for (int row = 0; row < rows; row++) {
@@ -52,30 +49,22 @@ public class GuiCable extends GuiCableBase implements IPublicGuiContainer {
   @Override
   public void initGui() {
     super.initGui();
-
     btnImport = new GuiCableButton(CableMessageType.IMPORT_FILTER, guiLeft + 78, guiTop + 5, "I");
     this.addButton(btnImport);
-
     btnMinus = new GuiCableButton(CableMessageType.PRIORITY_DOWN, guiLeft + 6, guiTop + 5, "-");
     this.addButton(btnMinus);
-
     btnPlus = new GuiCableButton(CableMessageType.PRIORITY_UP, guiLeft + 37, guiTop + 5, "+");
     this.addButton(btnPlus);
-
     btnWhite = new GuiCableButton(CableMessageType.TOGGLE_WHITELIST, guiLeft + 58, guiTop + 5, "");
     this.addButton(btnWhite);
-
     btnWhite.visible = containerCable.tile.getBlockType() != ModBlocks.exKabel;
-
     int x = 88;
     int y = 62;
     checkOreBtn = new GuiCheckBox(10, guiLeft + x, guiTop + y, I18n.format("gui.storagenetwork.checkbox.ore"), true);
     this.addButton(checkOreBtn);
-
     y += 12;
     checkMetaBtn = new GuiCheckBox(11, guiLeft + x, guiTop + y, I18n.format("gui.storagenetwork.checkbox.meta"), true);
     this.addButton(checkMetaBtn);
-
     x += 50;
     checkNbtBtn = new GuiCheckBox(12, guiLeft + x, guiTop + y, I18n.format("gui.storagenetwork.checkbox.nbt"), true);
     this.addButton(checkNbtBtn);
@@ -84,12 +73,10 @@ public class GuiCable extends GuiCableBase implements IPublicGuiContainer {
   @Override
   protected void actionPerformed(GuiButton button) throws IOException {
     super.actionPerformed(button);
-
     FilterItemStackHandler filterHandler = getFilterHandler();
-    if(filterHandler == null) {
+    if (filterHandler == null) {
       return;
     }
-
     if (button.id == btnWhite.id) {
       filterHandler.isWhitelist = !filterHandler.isWhitelist;
       PacketRegistry.INSTANCE.sendToServer(new CableDataMessage(button.id));
@@ -99,20 +86,17 @@ public class GuiCable extends GuiCableBase implements IPublicGuiContainer {
   @Override
   protected void drawTooltips(int mouseX, int mouseY) {
     super.drawTooltips(mouseX, mouseY);
-
     FilterItemStackHandler filterHandler = getFilterHandler();
-    if(filterHandler != null && btnWhite != null && btnWhite.isMouseOver()) {
+    if (filterHandler != null && btnWhite != null && btnWhite.isMouseOver()) {
       String s = filterHandler.isWhitelist ? I18n.format("gui.storagenetwork.gui.whitelist") : I18n.format("gui.storagenetwork.gui.blacklist");
       this.drawHoveringText(Lists.newArrayList(s), mouseX, mouseY, fontRenderer);
     }
-
     if (btnPlus != null && btnPlus.isMouseOver()) {
       this.drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.priority.up")), mouseX, mouseY, fontRenderer);
     }
     if (btnMinus != null && btnMinus.isMouseOver()) {
       this.drawHoveringText(Lists.newArrayList(I18n.format("gui.storagenetwork.priority.down")), mouseX, mouseY, fontRenderer);
     }
-
   }
 
   @Override

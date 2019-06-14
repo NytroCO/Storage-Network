@@ -23,6 +23,7 @@ import mrriegel.storagenetwork.block.control.ProcessWrapper;
 import mrriegel.storagenetwork.capabilities.StorageNetworkCapabilities;
 import mrriegel.storagenetwork.config.ConfigHandler;
 import mrriegel.storagenetwork.data.ItemStackMatcher;
+import mrriegel.storagenetwork.util.UtilInventory;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,6 +35,8 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public class TileMaster extends TileEntity implements ITickable, INetworkMaster {
@@ -53,26 +56,12 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
     if (getConnectablePositions() == null) {
       refreshNetwork();
     }
-    //<<<<<<< HEAD 
-    //    List<TileCable> invs = getSortedStorageCables();
-    //    for (TileCable tileConnected : invs) {
-    //      IItemHandler inv = tileConnected.getInventory();
-    //      ItemStack stack;
-    //      for (int i = 0; i < inv.getSlots(); i++) {
-    //        if (inv.extractItem(i, 1, true).isEmpty()) {
-    //          continue;
-    //        }
-    //        stack = inv.getStackInSlot(i);
-    //        if (!stack.isEmpty() && tileConnected.canTransfer(stack, EnumFilterDirection.BOTH))
-    //          addToList(stacks, stack.copy(), stack.getCount());
-    //=======
     for (IConnectableLink storage : getSortedConnectableStorage()) {
       for (ItemStack stack : storage.getStoredStacks()) {
         if (stack.isEmpty()) {
           continue;
         }
         addOrMergeIntoList(stacks, stack.copy());
-        //>>>>>>> api160alpha
       }
     }
     return stacks;
@@ -144,15 +133,10 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
       if (chunk == null || !chunk.isLoaded()) {
         continue;
       }
-      if (!isTargetAllowed(lookPos)) {
-        continue;
-      }
       // Prevent having multiple masters on a network and break all others.
       TileMaster maybeMasterTile = lookPos.getTileEntity(TileMaster.class);
       if (maybeMasterTile != null && !lookPos.equals(this.world, this.pos)) {
-        lookPos.getBlockState().getBlock().dropBlockAsItem(lookPos.getWorld(), lookPos.getBlockPos(), lookPos.getBlockState(), 0);
-        lookPos.getWorld().setBlockToAir(lookPos.getBlockPos());
-        lookPos.getWorld().removeTileEntity(lookPos.getBlockPos());
+        nukeAndDrop(lookPos);
         continue;
       }
       TileEntity tileHere = lookPos.getTileEntity(TileEntity.class);
@@ -170,16 +154,23 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
         }
         set.add(realConnectablePos);
         addConnectables(realConnectablePos, set);
-          tileHere.markDirty();
-          chunk.setModified(true);
-        }
+        tileHere.markDirty();
+        chunk.setModified(true);
+      }
     }
   }
 
-  public static boolean isTargetAllowed(DimPos dimPos) {
-    String blockId = dimPos.getBlockState().getBlock().getRegistryName().toString();
+  private void nukeAndDrop(DimPos lookPos) {
+    lookPos.getBlockState().getBlock().dropBlockAsItem(lookPos.getWorld(), lookPos.getBlockPos(), lookPos.getBlockState(), 0);
+    lookPos.getWorld().setBlockToAir(lookPos.getBlockPos());
+    lookPos.getWorld().removeTileEntity(lookPos.getBlockPos());
+  }
+
+  public static boolean isTargetAllowed(IBlockState iBlockState) {
+    String blockId = iBlockState.getBlock().getRegistryName().toString();
     for (String s : blacklist) {
-      if (s != null && s.equals(blockId)) {
+      if (blockId.equals(s)) {
+        StorageNetwork.info(iBlockState + " Connection blocked by config ");
         return false;
       }
     }
@@ -190,7 +181,6 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
     if (world.isRemote) {
       return;
     }
-
     shouldRefresh = true;
   }
 
@@ -322,7 +312,24 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
         continue;
       }
       for (IItemStackMatcher matcher : storage.getAutoExportList()) {
-        ItemStack requestedStack = this.request(matcher, storage.getTransferRate(), true);
+        boolean stockMode = storage.isStockMode();
+        int amtToRequest = storage.getTransferRate();
+        if (stockMode) {
+          try {
+            TileEntity tileEntity = world.getTileEntity(connectable.getPos().getBlockPos().offset(storage.facingInventory()));
+            IItemHandler targetInventory = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+            //request with false to see how many even exist in there.  
+            int stillNeeds = UtilInventory.containsAtLeastHowManyNeeded(targetInventory, matcher.getStack(), matcher.getStack().getCount());
+            if (stillNeeds == 0) {
+              continue;
+            }
+            amtToRequest = Math.min(stillNeeds, amtToRequest);
+          }
+          catch (Throwable e) {
+            StorageNetwork.log("error thrown " + e.getMessage());
+          }
+        }
+        ItemStack requestedStack = this.request(matcher, amtToRequest, true);
         if (requestedStack.isEmpty()) {
           continue;
         }
@@ -357,57 +364,16 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
     IItemStackMatcher usedMatcher = matcher;
     int alreadyTransferred = 0;
     for (IConnectableLink storage : getSortedConnectableStorage()) {
-      ItemStack simExtract = storage.extractStack(usedMatcher, size - alreadyTransferred, simulate);
+      int req = size - alreadyTransferred;
+      ItemStack simExtract = storage.extractStack(usedMatcher, req, simulate);
       if (simExtract.isEmpty()) {
         continue;
       }
-      //<<<<<<< HEAD
-      //    }
-      //    //  StorageNetwork.benchmark( "after r connectables");
-      //    ItemStack res = ItemStack.EMPTY;
-      //    int result = 0;
-      //    for (AbstractFilterTile t : invs) {
-      //      IItemHandler inv = t.getInventory();
-      //      for (int i = 0; i < inv.getSlots(); i++) {
-      //        ItemStack stackCurrent = inv.getStackInSlot(i);
-      //        if (stackCurrent == null || stackCurrent.isEmpty()) {
-      //          continue;
-      //        }
-      //        if (res != null && !res.isEmpty() && !ItemHandlerHelper.canItemStacksStack(stackCurrent, res)) {
-      //          continue;
-      //        }
-      //        if (!fil.match(stackCurrent)) {
-      //          continue;
-      //        }
-      //        if (!t.canTransfer(stackCurrent, EnumFilterDirection.OUT)) {
-      //          continue;
-      //        }
-      //        int miss = size - result;
-      //        int extractedCount = Math.min(inv.getStackInSlot(i).getCount(), miss);
-      //        ItemStack extracted = inv.extractItem(i, extractedCount, simulate);
-      //        if (extracted.isEmpty()) {
-      //          continue;// dont return, look for it somewhere else 
-      //        }
-      //
-      //        //the other KEY fix for https://github.com/PrinceOfAmber/Storage-Network/issues/19, where it 
-      //        //voided stuff when you took all from storage drawer: extracted can have a >0 stacksize, but still be air,
-      //        //so the getCount overrides the 16, and gives zero instead, so i di my own override of, if empty then it got all so use source
-      //        result += Math.min(extracted.isEmpty() ? stackCurrent.getCount() : extracted.getCount(), miss);
-      //        res = stackCurrent.copy();
-      //        if (res.isEmpty()) { //workaround for storage drawer and chest thing
-      //          res = extracted.copy();
-      //          res.setCount(result);
-      //        }
-      //        if (result == size) {
-      //          return ItemHandlerHelper.copyStackWithSize(res, size);
-      //        }
-      //=======
       // Do not stack items of different types together, i.e. make the filter rules more strict for all further items
       usedMatcher = new ItemStackMatcher(simExtract, true, false, true);
       alreadyTransferred += simExtract.getCount();
       if (alreadyTransferred >= size) {
         break;
-        //>>>>>>> api160alpha 
       }
     }
     if (alreadyTransferred <= 0) {
@@ -422,7 +388,7 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
       return new HashSet<IConnectable>();
     }
     Set<IConnectable> result = new HashSet<>();
-    for(DimPos pos : positions) {
+    for (DimPos pos : positions) {
       if (!pos.isLoaded()) {
         continue;
       }
@@ -441,16 +407,16 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
 
   private Set<IConnectableLink> getConnectableStorage() {
     Set<IConnectableLink> result = new HashSet<>();
-    for (final DimPos pos : getConnectablePositions()) {
-      if (!pos.isLoaded()) {
+    for (final DimPos dimpos : getConnectablePositions()) {
+      if (!dimpos.isLoaded()) {
         continue;
       }
-      TileEntity tileEntity = pos.getTileEntity(TileEntity.class);
+      TileEntity tileEntity = dimpos.getTileEntity(TileEntity.class);
       if (tileEntity == null) {
         continue;
       }
       if (!tileEntity.hasCapability(StorageNetworkCapabilities.CONNECTABLE_CAPABILITY, null)) {
-        StorageNetwork.instance.logger.error("Somehow stored a dimpos that is not connectable... Skipping " + pos);
+        StorageNetwork.instance.logger.error("Somehow stored a dimpos that is not connectable... Skipping " + dimpos);
         continue;
       }
       if (!tileEntity.hasCapability(StorageNetworkCapabilities.CONNECTABLE_ITEM_STORAGE_CAPABILITY, null)) {
@@ -472,6 +438,10 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
         continue;
       }
       DimPos inventoryPos = pos.offset(cableProcess.getDirection());
+      if (inventoryPos == null) {
+        StorageNetwork.log("Error: processor null at  " + pos + "," + cableProcess.getDirection());
+        continue;
+      }
       IBlockState blockState = inventoryPos.getBlockState();
       String name = blockState.getBlock().getLocalizedName();
       try {
@@ -545,23 +515,8 @@ public class TileMaster extends TileEntity implements ITickable, INetworkMaster 
     if (connectables == null) {
       connectables = new HashSet<DimPos>();
     }
-
     return new HashSet<>(connectables);
   }
-  //
-  //  private void setConnectablesEmpty() {
-  //    StorageNetwork.log("SetConnectables: EMPTY ");
-  //    if (connectables == null) {
-  //      connectables = new HashSet<DimPos>();
-  //      return;
-  //    }
-  //    Iterator<DimPos> iter = connectables.iterator();
-  //    while (iter.hasNext()) {
-  //      if (iter != null && iter.next() != null) {
-  //        iter.remove(); 
-  //      }
-  //    }
-  //  }
 
   @Override
   public void clearCache() {

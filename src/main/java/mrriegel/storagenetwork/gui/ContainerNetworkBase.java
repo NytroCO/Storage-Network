@@ -31,6 +31,7 @@ public abstract class ContainerNetworkBase extends Container implements IStorage
   protected InventoryCraftingNetwork matrix;
   protected boolean recipeLocked = false;
   protected boolean isSimple;
+
   @Override
   public InventoryCrafting getCraftMatrix() {
     return this.matrix;
@@ -240,10 +241,8 @@ public abstract class ContainerNetworkBase extends Container implements IStorage
         ItemStack stack = rest == 0 ? ItemStack.EMPTY : ItemHandlerHelper.copyStackWithSize(itemstack1, rest);
         slot.putStack(stack);
         detectAndSendChanges();
-
         List<ItemStack> list = tileMaster.getStacks();
         PacketRegistry.INSTANCE.sendTo(new StackRefreshClientMessage(list, new ArrayList<>()), (EntityPlayerMP) playerIn);
-
         if (stack.isEmpty()) {
           return ItemStack.EMPTY;
         }

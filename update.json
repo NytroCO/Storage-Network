@@ -7,8 +7,8 @@
     "1.12-recommended": "1.0.15",
     "1.12.1-latest": "1.0.15",
     "1.12.1-recommended": "1.1.1",
-    "1.12.2-latest": "1.7.1",
-    "1.12.2-recommended": "1.7.1"
+    "1.12.2-latest": "1.7.7",
+    "1.12.2-recommended": "1.7.7"
   },
   "1.11.2":{
 	"1.0.0":"First Release"
@@ -71,5 +71,11 @@
   	,"1.6.6":"Fixed a bug where the came might crash when playing on a server and using the network across dimensions.  "
   	,"1.7.0":"Added simple remote with no crafting component.  Updated to work around some small server issues and crafting issues.  Add config to optionally disable fastworkbench compatibility even if mod is installed for testing.   "
   	,"1.7.1":"Tooltip fix"
+  	,"1.7.2":"Fixed Processing Controller GUI not opening.  "
+  	,"1.7.3":"When you rotate a link cable, it correctly updates the link and the connected items.  Fixed a crash that can sometimes happen upgrading a new world from 1.5.x"
+  	,"1.7.4":"Compatible with FastWorkBench 1.7.0 (still optional).  Fixed a divide by zero error that could happen with cable upgrades.  Fixed crash and issues when shift-clicking upgrades into cables.  Cables now show filter stack numbers when the Stock upgrade is in place.  Fixed stock upgrades not functioning as intended.  Cable bounding boxes slightly altered to reach behind corners easier in some situations.  Patched an item loss bug when two people tried to complete a recipe in JEI in a request table at the same moment"
+  	,"1.7.5":"Fixed a potential crash if you rotate a cable (with a crescent hammer) when the cable was not connected to the network.  Fixed import filter slots getting assigned the wrong index location and showing up where you did not click.  Fixed the walking-through-cables bug.  Fixed the request GUI auto-closing sometimes when the network refreshes.  Fixed the clear recipe button (tiny x button) in the remote GUI.  Fixed shift-click issues in Remote crafting.  Fixed issues with the config blacklist.  Fixed a dupe bug when certain machines are connected and have restricted slots.  "
+	,"1.7.6":"Newly placed Export cables now have Meta checked by default, for convenience.  Fixed a bug with shift-clicking in processing cable GUI.  Fixed bug where inventory can be switching places in the request table on open in servers.  Fixed some small issues introduced in 1.7.5 such as normal clicks not requesting 64 items.  You can now middle-click instead of holding ctrl to pull out exactly one item, instead of 64.  Reverted and fixed cable connector bounding-box/hitbox changes that were introduced in 1.7.4.  Fixed recipe transfers not finding damaged items such as tools or Infusion Crystals.  "
+	,"1.7.7":"Fixed Output Only mode in cables. ru_RU.lang updated by kellixon  "
   }
 }

@@ -4,12 +4,19 @@ import mrriegel.storagenetwork.StorageNetwork;
 import mrriegel.storagenetwork.block.cable.TesrCable;
 import mrriegel.storagenetwork.block.cable.TileCable;
 import mrriegel.storagenetwork.registry.ModBlocks;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 public class ClientProxy extends CommonProxy {
+
+  @Override
+  public EntityPlayer getClientPlayer() {
+    return Minecraft.getMinecraft().player;
+  }
 
   @Override
   public void preInit(FMLPreInitializationEvent event) {

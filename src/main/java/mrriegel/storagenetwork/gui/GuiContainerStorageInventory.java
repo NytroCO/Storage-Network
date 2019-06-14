@@ -14,6 +14,7 @@ import mrriegel.storagenetwork.StorageNetwork;
 import mrriegel.storagenetwork.data.EnumSortType;
 import mrriegel.storagenetwork.jei.JeiHooks;
 import mrriegel.storagenetwork.jei.JeiSettings;
+import mrriegel.storagenetwork.network.ClearRecipeMessage;
 import mrriegel.storagenetwork.network.InsertMessage;
 import mrriegel.storagenetwork.network.RequestMessage;
 import mrriegel.storagenetwork.network.SortMessage;
@@ -61,7 +62,6 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
     this.craftableStacks = Lists.newArrayList();
     PacketRegistry.INSTANCE.sendToServer(new RequestMessage());
     lastClick = System.currentTimeMillis();
-
   }
 
   protected boolean canClick() {
@@ -140,11 +140,8 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
   }
 
   protected boolean inSearchbar(int mouseX, int mouseY) {
-    //    System.out.println("mx! " + mouseX + " , my, " + mouseY);
-    //    System.out.println("s.x, " + searchBar.x + " , s.y, " + searchBar.y);
     return isPointInRegion(searchBar.x - guiLeft + 14, searchBar.y - guiTop, searchBar.width, fontRenderer.FONT_HEIGHT + 6, mouseX, mouseY);
   }
-
 
   @Override
   public void drawGradientRectP(int left, int top, int right, int bottom, int startColor, int endColor) {
@@ -412,23 +409,25 @@ public abstract class GuiContainerStorageInventory extends GuiContainer implemen
   public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
     super.mouseClicked(mouseX, mouseY, mouseButton);
     searchBar.setFocused(false);
-    //int rectX = 63, rectY = (isSimple) ? 220 : 110;
+    int rectX = 63, rectY = 110;
     if (inSearchbar(mouseX, mouseY)) {
       searchBar.setFocused(true);
       if (mouseButton == UtilTileEntity.MOUSE_BTN_RIGHT) {
         clearSearch();
       }
     }
-    //    else if (isPointInRegion(rectX, rectY, 7, 7, mouseX, mouseY)) {
-    //      PacketRegistry.INSTANCE.sendToServer(new ClearRecipeMessage());
-    //      PacketRegistry.INSTANCE.sendToServer(new RequestMessage(0, ItemStack.EMPTY, false, false));
-    //    }
+    else if (!isSimple && isPointInRegion(rectX, rectY, 7, 7, mouseX, mouseY)) {
+      PacketRegistry.INSTANCE.sendToServer(new ClearRecipeMessage());
+      PacketRegistry.INSTANCE.sendToServer(new RequestMessage(0, ItemStack.EMPTY, false, false));
+    }
     else {
       ItemStack stackCarriedByMouse = mc.player.inventory.getItemStack();
       if (!stackUnderMouse.isEmpty()
-          && (mouseButton == UtilTileEntity.MOUSE_BTN_LEFT || mouseButton == UtilTileEntity.MOUSE_BTN_RIGHT)
+          && (mouseButton == UtilTileEntity.MOUSE_BTN_LEFT || mouseButton == UtilTileEntity.MOUSE_BTN_RIGHT
+              || mouseButton == UtilTileEntity.MOUSE_BTN_MIDDLE_CLICK)
           && stackCarriedByMouse.isEmpty() && canClick()) {
-        PacketRegistry.INSTANCE.sendToServer(new RequestMessage(mouseButton, stackUnderMouse, isShiftKeyDown(), isCtrlKeyDown()));
+        PacketRegistry.INSTANCE.sendToServer(new RequestMessage(mouseButton, stackUnderMouse, isShiftKeyDown(),
+            mouseButton == UtilTileEntity.MOUSE_BTN_MIDDLE_CLICK));
         lastClick = System.currentTimeMillis();
       }
       else if (!stackCarriedByMouse.isEmpty() && inField(mouseX, mouseY) && canClick()) {
