@@ -105,6 +105,7 @@ dependencies {
 
     // These dependencies get remapped to your current MCP mappings
     // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+     compile "mezz.jei:jei-1.14.3:${jei_version}"
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
@@ -112,6 +113,12 @@ dependencies {
 
 }
 
+repositories {
+    maven { // JEI
+        url "http://dvs1.progwml6.com/files/maven"
+    }
+}
+    
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
     manifest {

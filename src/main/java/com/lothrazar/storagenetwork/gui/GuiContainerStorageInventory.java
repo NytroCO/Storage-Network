@@ -451,21 +451,29 @@ public abstract class GuiContainerStorageInventory extends ContainerScreen<Conta
   }
 
   @Override
-  public boolean keyPressed(int x, int y, int b) {
-    InputMappings.Input mouseKey = InputMappings.getInputByCode(x, y);
-    if (x == 256) {
+  public boolean keyPressed(int keyCode, int scanCode, int b) {
+    InputMappings.Input mouseKey = InputMappings.getInputByCode(keyCode, scanCode);
+    if (keyCode == 256) {
       minecraft.player.closeScreen();
       return true; // Forge MC-146650: Needs to return true when the key is handled.
     }
     if (searchBar.isFocused()) {
-      searchBar.keyPressed(x, y, b);
+      searchBar.keyPressed(keyCode, scanCode, b);
       return true;
+    }
+    else if (this.stackUnderMouse.isEmpty()) {
+      try {
+        JeiHooks.testJeiKeybind(mouseKey, this.stackUnderMouse);
+      }
+      catch (Throwable e) {
+        //its ok JEI not installed for maybe an addon mod is ok
+      }
     }
     if (minecraft.gameSettings.keyBindInventory.isActiveAndMatches(mouseKey)) {
       minecraft.player.closeScreen();
       return true; // Forge MC-146650: Needs to return true when the key is handled.
     }
-    return super.keyPressed(x, y, b);
+    return super.keyPressed(keyCode, scanCode, b);
   }
 
   @Override
