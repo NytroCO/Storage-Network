@@ -8,12 +8,12 @@ import net.minecraft.item.ItemStack;
 
 public class ContainerCableProcessing extends ContainerCable {
 
-  public ContainerCableProcessing(TileCable tile, InventoryPlayer playerInv) {
-    super(tile, playerInv);
-  }
+    public ContainerCableProcessing(TileCable tile, InventoryPlayer playerInv) {
+        super(tile, playerInv);
+    }
 
-  @Override
-  public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
-    return ItemStack.EMPTY;
-  }
+    @Override
+    public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
+        return ItemStack.EMPTY;
+    }
 }

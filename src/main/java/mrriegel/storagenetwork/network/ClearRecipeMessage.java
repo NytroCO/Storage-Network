@@ -1,7 +1,5 @@
 package mrriegel.storagenetwork.network;
 
-import java.util.ArrayList;
-import java.util.List;
 import io.netty.buffer.ByteBuf;
 import mrriegel.storagenetwork.block.master.TileMaster;
 import mrriegel.storagenetwork.gui.IStorageContainer;
@@ -17,66 +15,65 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.items.ItemHandlerHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ClearRecipeMessage implements IMessage, IMessageHandler<ClearRecipeMessage, IMessage> {
 
-  @Override
-  public IMessage onMessage(final ClearRecipeMessage message, final MessageContext ctx) {
-    EntityPlayerMP player = ctx.getServerHandler().player;
-    IThreadListener mainThread = (WorldServer) player.world;
-    mainThread.addScheduledTask(new Runnable() {
-
-      @Override
-      public void run() {
-        ClearRecipeMessage.clearContainerRecipe(player, true);
-      }
-    });
-    return null;
-  }
-
-  /**
-   * Should be in a public util.
-   * 
-   * Clears recipe and puts ingredients back in the network. If possible.
-   * 
-   * May stop partway and leave items in if network is disconnected.
-   * 
-   * @param player
-   * @param doRefresh
-   */
-  public static void clearContainerRecipe(EntityPlayerMP player, boolean doRefresh) {
-    if (player.openContainer instanceof IStorageContainer) {
-      IStorageContainer container = (IStorageContainer) player.openContainer;
-      InventoryCrafting craftMatrix = container.getCraftMatrix();
-      TileMaster tileMaster = container.getTileMaster();
-      for (int i = 0; i < 9; i++) {
-        if (tileMaster == null) {
-          break;
-        }
-        ItemStack stackInSlot = craftMatrix.getStackInSlot(i);
-        if (stackInSlot.isEmpty()) {
-          continue;
-        }
-        int numBeforeInsert = stackInSlot.getCount();
-        int remainingAfter = tileMaster.insertStack(stackInSlot.copy(), false);
-        if (numBeforeInsert == remainingAfter) {
-          continue;
-        }
-        if (remainingAfter == 0)
-          craftMatrix.setInventorySlotContents(i, ItemStack.EMPTY);
-        else
-          craftMatrix.setInventorySlotContents(i, ItemHandlerHelper.copyStackWithSize(stackInSlot, remainingAfter));
-      }
-      if (doRefresh) {
-        List<ItemStack> list = tileMaster.getStacks();
-        PacketRegistry.INSTANCE.sendTo(new StackRefreshClientMessage(list, new ArrayList<>()), player);
-        ((Container) container).detectAndSendChanges();
-      }
+    @Override
+    public IMessage onMessage(final ClearRecipeMessage message, final MessageContext ctx) {
+        EntityPlayerMP player = ctx.getServerHandler().player;
+        IThreadListener mainThread = (WorldServer) player.world;
+        mainThread.addScheduledTask(() -> ClearRecipeMessage.clearContainerRecipe(player, true));
+        return null;
     }
-  }
 
-  @Override
-  public void fromBytes(ByteBuf buf) {}
+    /**
+     * Should be in a public util.
+     * <p>
+     * Clears recipe and puts ingredients back in the network. If possible.
+     * <p>
+     * May stop partway and leave items in if network is disconnected.
+     *
+     * @param player
+     * @param doRefresh
+     */
+    public static void clearContainerRecipe(EntityPlayerMP player, boolean doRefresh) {
+        if (player.openContainer instanceof IStorageContainer) {
+            IStorageContainer container = (IStorageContainer) player.openContainer;
+            InventoryCrafting craftMatrix = container.getCraftMatrix();
+            TileMaster tileMaster = container.getTileMaster();
+            for (int i = 0; i < 9; i++) {
+                if (tileMaster == null) {
+                    break;
+                }
+                ItemStack stackInSlot = craftMatrix.getStackInSlot(i);
+                if (stackInSlot.isEmpty()) {
+                    continue;
+                }
+                int numBeforeInsert = stackInSlot.getCount();
+                int remainingAfter = tileMaster.insertStack(stackInSlot.copy(), false);
+                if (numBeforeInsert == remainingAfter) {
+                    continue;
+                }
+                if (remainingAfter == 0)
+                    craftMatrix.setInventorySlotContents(i, ItemStack.EMPTY);
+                else
+                    craftMatrix.setInventorySlotContents(i, ItemHandlerHelper.copyStackWithSize(stackInSlot, remainingAfter));
+            }
+            if (doRefresh) {
+                List<ItemStack> list = tileMaster.getStacks();
+                PacketRegistry.INSTANCE.sendTo(new StackRefreshClientMessage(list, new ArrayList<>()), player);
+                ((Container) container).detectAndSendChanges();
+            }
+        }
+    }
 
-  @Override
-  public void toBytes(ByteBuf buf) {}
+    @Override
+    public void fromBytes(ByteBuf buf) {
+    }
+
+    @Override
+    public void toBytes(ByteBuf buf) {
+    }
 }

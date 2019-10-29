@@ -6,55 +6,55 @@ import net.minecraft.util.math.BlockPos;
 
 public class GuiRequest extends GuiContainerStorageInventory {
 
-  private TileRequest tile;
+    private final TileRequest tile;
 
-  public GuiRequest(ContainerRequest inventorySlotsIn) {
-    super(inventorySlotsIn);
-    tile = inventorySlotsIn.getTileRequest();
-  }
+    public GuiRequest(ContainerRequest inventorySlotsIn) {
+        super(inventorySlotsIn);
+        tile = inventorySlotsIn.getTileRequest();
+    }
 
-  @Override
-  public void initGui() {
-    super.initGui();
-  }
+    @Override
+    public void initGui() {
+        super.initGui();
+    }
 
-  @Override
-  public void updateScreen() {
-    super.updateScreen();
-  }
+    @Override
+    protected boolean isScreenValid() {
+        return true;
+    }
 
-  @Override
-  public boolean getDownwards() {
-    return tile.isDownwards();
-  }
+    @Override
+    public boolean getDownwards() {
+        return tile.isDownwards();
+    }
 
-  @Override
-  public void setDownwards(boolean d) {
-    tile.setDownwards(d);
-  }
+    @Override
+    public void setDownwards(boolean d) {
+        tile.setDownwards(d);
+    }
 
-  @Override
-  public EnumSortType getSort() {
-    return tile.getSort();
-  }
+    @Override
+    public EnumSortType getSort() {
+        return tile.getSort();
+    }
 
-  @Override
-  public void setSort(EnumSortType s) {
-    tile.setSort(s);
-  }
+    @Override
+    public void setSort(EnumSortType s) {
+        tile.setSort(s);
+    }
 
-  @Override
-  public BlockPos getPos() {
-    return tile.getPos();
-  }
+    @Override
+    protected int getDim() {
+        return tile.getWorld().provider.getDimension();
+    }
 
-  @Override
-  protected int getDim() {
-    return tile.getWorld().provider.getDimension();
-  }
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+    }
 
-  @Override
-  protected boolean isScreenValid() {
-    return true;
-  }
+    @Override
+    public BlockPos getPos() {
+        return tile.getPos();
+    }
 }

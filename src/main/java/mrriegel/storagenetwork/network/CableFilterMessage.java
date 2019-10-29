@@ -20,99 +20,100 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class CableFilterMessage implements IMessage, IMessageHandler<CableFilterMessage, IMessage> {
 
-  private int index;
-  private ItemStack stack;
-  private boolean ore, meta, nbt;
+    private int index;
+    private ItemStack stack;
+    private boolean ore, meta, nbt;
 
-  public CableFilterMessage() {}
-
-  public CableFilterMessage(int index, ItemStack stack, boolean ore, boolean meta, boolean nbt) {
-    this.index = index;
-    this.stack = stack;
-    this.ore = ore;
-    this.meta = meta;
-    this.nbt = nbt;
-  }
-
-  @Override
-  public IMessage onMessage(final CableFilterMessage message, final MessageContext ctx) {
-    EntityPlayerMP player = ctx.getServerHandler().player;
-    IThreadListener mainThread = (WorldServer) player.world;
-    mainThread.addScheduledTask(() -> {
-      if (player.openContainer instanceof ContainerCable) {
-        TileCable tileCable = ((ContainerCable) player.openContainer).tile;
-        if (tileCable instanceof TileCableProcess) {
-          TileCableProcess processCable = (TileCableProcess) tileCable;
-          processCable.filters.ores = message.ore;
-          processCable.filters.meta = message.meta;
-          processCable.filters.nbt = message.nbt;
-          processCable.markDirty();
-        }
-      }
-      if (player.openContainer instanceof ContainerCableLink) {
-        ContainerCableLink con = (ContainerCableLink) player.openContainer;
-        if (con == null || con.link == null) {
-          return;
-        }
-        if (message.stack != null && message.index >= 0) {
-          con.link.filters.setStackInSlot(message.index, message.stack);
-        }
-        con.link.filters.ores = message.ore;
-        con.link.filters.meta = message.meta;
-        con.link.filters.nbt = message.nbt;
-        con.tile.markDirty();
-      }
-      if (player.openContainer instanceof ContainerCableIO) {
-        ContainerCableIO con = (ContainerCableIO) player.openContainer;
-        if (con == null || con.cap == null) {
-          return;
-        }
-        if (message.stack != null && message.index >= 0) {
-          con.cap.filters.setStackInSlot(message.index, message.stack);
-        }
-        con.cap.filters.ores = message.ore;
-        con.cap.filters.meta = message.meta;
-        con.cap.filters.nbt = message.nbt;
-        con.tile.markDirty();
-        UtilTileEntity.updateTile(con.tile.getWorld(), con.tile.getPos());
-      }
-      if (player.openContainer instanceof ContainerCableProcessing) {
-        ContainerCableProcessing con = (ContainerCableProcessing) player.openContainer;
-        if (!(con.tile instanceof TileCableProcess)) {
-          return;
-        }
-        TileCableProcess tileCable = (TileCableProcess) con.tile;
-        if (message.stack != null && message.index >= 0) {
-          tileCable.filters.setStackInSlot(message.index, message.stack);
-        }
-        tileCable.filters.ores = message.ore;
-        tileCable.filters.meta = message.meta;
-        tileCable.filters.nbt = message.nbt;
-        tileCable.markDirty();
-      }
-    });
-    return null;
-  }
-
-  @Override
-  public void fromBytes(ByteBuf buf) {
-    this.index = buf.readInt();
-    this.ore = buf.readBoolean();
-    this.meta = buf.readBoolean();
-    this.nbt = buf.readBoolean();
-    this.stack = new ItemStack(ByteBufUtils.readTag(buf));
-  }
-
-  @Override
-  public void toBytes(ByteBuf buf) {
-    buf.writeInt(this.index);
-    buf.writeBoolean(this.ore);
-    buf.writeBoolean(this.meta);
-    buf.writeBoolean(this.nbt);
-    NBTTagCompound nbt = new NBTTagCompound();
-    if (this.stack != null) {
-      nbt = this.stack.serializeNBT();
+    public CableFilterMessage() {
     }
-    ByteBufUtils.writeTag(buf, nbt);
-  }
+
+    public CableFilterMessage(int index, ItemStack stack, boolean ore, boolean meta, boolean nbt) {
+        this.index = index;
+        this.stack = stack;
+        this.ore = ore;
+        this.meta = meta;
+        this.nbt = nbt;
+    }
+
+    @Override
+    public IMessage onMessage(final CableFilterMessage message, final MessageContext ctx) {
+        EntityPlayerMP player = ctx.getServerHandler().player;
+        IThreadListener mainThread = (WorldServer) player.world;
+        mainThread.addScheduledTask(() -> {
+            if (player.openContainer instanceof ContainerCable) {
+                TileCable tileCable = ((ContainerCable) player.openContainer).tile;
+                if (tileCable instanceof TileCableProcess) {
+                    TileCableProcess processCable = (TileCableProcess) tileCable;
+                    processCable.filters.ores = message.ore;
+                    processCable.filters.meta = message.meta;
+                    processCable.filters.nbt = message.nbt;
+                    processCable.markDirty();
+                }
+            }
+            if (player.openContainer instanceof ContainerCableLink) {
+                ContainerCableLink con = (ContainerCableLink) player.openContainer;
+                if (con == null || con.link == null) {
+                    return;
+                }
+                if (message.stack != null && message.index >= 0) {
+                    con.link.filters.setStackInSlot(message.index, message.stack);
+                }
+                con.link.filters.ores = message.ore;
+                con.link.filters.meta = message.meta;
+                con.link.filters.nbt = message.nbt;
+                con.tile.markDirty();
+            }
+            if (player.openContainer instanceof ContainerCableIO) {
+                ContainerCableIO con = (ContainerCableIO) player.openContainer;
+                if (con == null || con.cap == null) {
+                    return;
+                }
+                if (message.stack != null && message.index >= 0) {
+                    con.cap.filters.setStackInSlot(message.index, message.stack);
+                }
+                con.cap.filters.ores = message.ore;
+                con.cap.filters.meta = message.meta;
+                con.cap.filters.nbt = message.nbt;
+                con.tile.markDirty();
+                UtilTileEntity.updateTile(con.tile.getWorld(), con.tile.getPos());
+            }
+            if (player.openContainer instanceof ContainerCableProcessing) {
+                ContainerCableProcessing con = (ContainerCableProcessing) player.openContainer;
+                if (!(con.tile instanceof TileCableProcess)) {
+                    return;
+                }
+                TileCableProcess tileCable = (TileCableProcess) con.tile;
+                if (message.stack != null && message.index >= 0) {
+                    tileCable.filters.setStackInSlot(message.index, message.stack);
+                }
+                tileCable.filters.ores = message.ore;
+                tileCable.filters.meta = message.meta;
+                tileCable.filters.nbt = message.nbt;
+                tileCable.markDirty();
+            }
+        });
+        return null;
+    }
+
+    @Override
+    public void fromBytes(ByteBuf buf) {
+        this.index = buf.readInt();
+        this.ore = buf.readBoolean();
+        this.meta = buf.readBoolean();
+        this.nbt = buf.readBoolean();
+        this.stack = new ItemStack(ByteBufUtils.readTag(buf));
+    }
+
+    @Override
+    public void toBytes(ByteBuf buf) {
+        buf.writeInt(this.index);
+        buf.writeBoolean(this.ore);
+        buf.writeBoolean(this.meta);
+        buf.writeBoolean(this.nbt);
+        NBTTagCompound nbt = new NBTTagCompound();
+        if (this.stack != null) {
+            nbt = this.stack.serializeNBT();
+        }
+        ByteBufUtils.writeTag(buf, nbt);
+    }
 }

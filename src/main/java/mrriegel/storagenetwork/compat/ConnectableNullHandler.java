@@ -8,20 +8,21 @@ import net.minecraftforge.common.capabilities.Capability;
 
 public class ConnectableNullHandler implements IConnectable {
 
-  public Capability getCapability() {
-    return StorageNetworkCapabilities.CONNECTABLE_CAPABILITY;
-  }
+    public Capability getCapability() {
+        return StorageNetworkCapabilities.CONNECTABLE_CAPABILITY;
+    }
 
-  @Override
-  public DimPos getMasterPos() {
-    return new DimPos(0, new BlockPos(0, 0, 0));
-  }
+    @Override
+    public DimPos getMasterPos() {
+        return new DimPos(0, new BlockPos(0, 0, 0));
+    }
 
-  @Override
-  public DimPos getPos() {
-    return new DimPos(0, new BlockPos(0, 0, 0));
-  }
+    @Override
+    public void setMasterPos(DimPos masterPos) {
+    }
 
-  @Override
-  public void setMasterPos(DimPos masterPos) {}
+    @Override
+    public DimPos getPos() {
+        return new DimPos(0, new BlockPos(0, 0, 0));
+    }
 }

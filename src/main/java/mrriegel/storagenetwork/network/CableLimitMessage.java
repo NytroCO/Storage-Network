@@ -13,44 +13,45 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class CableLimitMessage implements IMessage, IMessageHandler<CableLimitMessage, IMessage> {
 
-  private int limit;
-  private ItemStack stack;
+    private int limit;
+    private ItemStack stack;
 
-  public CableLimitMessage() {}
+    public CableLimitMessage() {
+    }
 
-  public CableLimitMessage(int limit, ItemStack stack) {
-    super();
-    this.limit = limit;
-    this.stack = stack;
-  }
+    public CableLimitMessage(int limit, ItemStack stack) {
+        super();
+        this.limit = limit;
+        this.stack = stack;
+    }
 
-  @Override
-  public IMessage onMessage(final CableLimitMessage message, final MessageContext ctx) {
-    EntityPlayerMP player = ctx.getServerHandler().player;
-    IThreadListener mainThread = (WorldServer) player.world;
-    mainThread.addScheduledTask(() -> {
-      if (player.openContainer instanceof ContainerCableIO) {
-        ContainerCableIO con = (ContainerCableIO) player.openContainer;
-        if (con == null || con.cap == null) {
-          return;
-        }
-        con.cap.operationLimit = message.limit;
-        con.cap.operationStack = message.stack;
-        con.tile.markDirty();
-      }
-    });
-    return null;
-  }
+    @Override
+    public IMessage onMessage(final CableLimitMessage message, final MessageContext ctx) {
+        EntityPlayerMP player = ctx.getServerHandler().player;
+        IThreadListener mainThread = (WorldServer) player.world;
+        mainThread.addScheduledTask(() -> {
+            if (player.openContainer instanceof ContainerCableIO) {
+                ContainerCableIO con = (ContainerCableIO) player.openContainer;
+                if (con == null || con.cap == null) {
+                    return;
+                }
+                con.cap.operationLimit = message.limit;
+                con.cap.operationStack = message.stack;
+                con.tile.markDirty();
+            }
+        });
+        return null;
+    }
 
-  @Override
-  public void fromBytes(ByteBuf buf) {
-    this.limit = buf.readInt();
-    this.stack = ByteBufUtils.readItemStack(buf);
-  }
+    @Override
+    public void fromBytes(ByteBuf buf) {
+        this.limit = buf.readInt();
+        this.stack = ByteBufUtils.readItemStack(buf);
+    }
 
-  @Override
-  public void toBytes(ByteBuf buf) {
-    buf.writeInt(this.limit);
-    ByteBufUtils.writeItemStack(buf, this.stack);
-  }
+    @Override
+    public void toBytes(ByteBuf buf) {
+        buf.writeInt(this.limit);
+        ByteBufUtils.writeItemStack(buf, this.stack);
+    }
 }

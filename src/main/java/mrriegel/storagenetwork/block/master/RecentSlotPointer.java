@@ -3,30 +3,30 @@ package mrriegel.storagenetwork.block.master;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
-public class RecentSlotPointer {
+class RecentSlotPointer {
 
-  private BlockPos pos;
-  private int slot = -1;
+    private BlockPos pos;
+    private int slot = -1;
 
-  public int getSlot() {
-    return slot;
-  }
+    public int getSlot() {
+        return slot;
+    }
 
-  public void setSlot(int slot) {
-    this.slot = slot;
-  }
+    public void setSlot(int slot) {
+        this.slot = slot;
+    }
 
-  public BlockPos getPos() {
-    return pos;
-  }
+    public BlockPos getPos() {
+        return pos;
+    }
 
-  public void setPos(BlockPos pos) {
-    this.pos = pos;
-  }
+    public void setPos(BlockPos pos) {
+        this.pos = pos;
+    }
 
-  public static class StackSlot {
+    private static class StackSlot {
 
-    public int slot = -1;
-    public ItemStack stack = ItemStack.EMPTY;
-  }
+        public int slot = -1;
+        public ItemStack stack = ItemStack.EMPTY;
+    }
 }

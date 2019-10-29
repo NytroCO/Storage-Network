@@ -11,29 +11,28 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 @Mod.EventBusSubscriber
 public class CommonProxy {
 
-  public EntityPlayer getClientPlayer() {
-    return null;
-  }
+    public EntityPlayer getClientPlayer() {
+        return null;
+    }
 
-  public void preInit(FMLPreInitializationEvent event) {
-    StorageNetworkCapabilities.initCapabilities();
-    ConfigHandler.refreshConfig(event.getSuggestedConfigurationFile());
-    JeiSettings.setJeiLoaded(Loader.isModLoaded("jei"));
-    PacketRegistry.init();
-  }
+    public void preInit(FMLPreInitializationEvent event) {
+        StorageNetworkCapabilities.initCapabilities();
+        ConfigHandler.refreshConfig(event.getSuggestedConfigurationFile());
+        JeiSettings.setJeiLoaded(Loader.isModLoaded("jei"));
+        PacketRegistry.init();
+    }
 
-  public void init(FMLInitializationEvent event) {
-    NetworkRegistry.INSTANCE.registerGuiHandler(StorageNetwork.instance, new GuiHandler());
-  }
+    public void init(FMLInitializationEvent event) {
+        NetworkRegistry.INSTANCE.registerGuiHandler(StorageNetwork.instance, new GuiHandler());
+    }
 
-  public void postInit(FMLPostInitializationEvent event) {
-    UtilTileEntity.init();
-  }
+    public void postInit() {
+        UtilTileEntity.init();
+    }
 }

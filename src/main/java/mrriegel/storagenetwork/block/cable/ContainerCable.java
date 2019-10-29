@@ -8,27 +8,27 @@ import net.minecraft.util.math.BlockPos;
 
 public class ContainerCable extends Container {
 
-  public TileCable tile;
-  protected int sq = 18;
+    public final TileCable tile;
+    protected final int sq = 18;
 
-  public ContainerCable(TileCable tile, InventoryPlayer playerInv) {
-    this.tile = tile;
-    //player inventory
-    for (int i = 0; i < 3; ++i) {
-      for (int j = 0; j < 9; ++j) {
-        this.addSlotToContainer(new Slot(playerInv, j + i * 9 + 9, 8 + j * sq, 55 + 34 + i * sq));
-      }
+    protected ContainerCable(TileCable tile, InventoryPlayer playerInv) {
+        this.tile = tile;
+        //player inventory
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                this.addSlotToContainer(new Slot(playerInv, j + i * 9 + 9, 8 + j * sq, 55 + 34 + i * sq));
+            }
+        }
+        //player hotbar
+        for (int i = 0; i < 9; ++i) {
+            this.addSlotToContainer(new Slot(playerInv, i, 8 + i * sq, 113 + 34));
+        }
     }
-    //player hotbar
-    for (int i = 0; i < 9; ++i) {
-      this.addSlotToContainer(new Slot(playerInv, i, 8 + i * sq, 113 + 34));
-    }
-  }
 
-  @Override
-  public boolean canInteractWith(EntityPlayer playerIn) {
-    BlockPos pos = tile.getPos();
-    return playerIn.getDistanceSq(
-        pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D;
-  }
+    @Override
+    public boolean canInteractWith(EntityPlayer playerIn) {
+        BlockPos pos = tile.getPos();
+        return playerIn.getDistanceSq(
+                pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D;
+    }
 }

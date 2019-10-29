@@ -8,8 +8,8 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 @GameRegistry.ObjectHolder(StorageNetwork.MODID)
 public class ModItems {
 
-  @GameRegistry.ObjectHolder("upgrade")
-  public static ItemUpgrade upgrade;
-  @GameRegistry.ObjectHolder("remote")
-  public static ItemRemote remote;
+    @GameRegistry.ObjectHolder("upgrade")
+    public static ItemUpgrade upgrade;
+    @GameRegistry.ObjectHolder("remote")
+    public static ItemRemote remote;
 }

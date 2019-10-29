@@ -1,10 +1,11 @@
 package mrriegel.storagenetwork.data;
+
 public enum EnumSortType {
-  AMOUNT, NAME, MOD;
+    AMOUNT, NAME, MOD;
 
-  private static EnumSortType[] vals = values();
+    private static final EnumSortType[] vals = values();
 
-  public EnumSortType next() {
-    return vals[(this.ordinal() + 1) % vals.length];
-  }
+    public EnumSortType next() {
+        return vals[(this.ordinal() + 1) % vals.length];
+    }
 }

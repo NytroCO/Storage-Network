@@ -5,9 +5,9 @@ import net.minecraft.block.material.Material;
 
 public abstract class BaseBlock extends BlockContainer {
 
-  public BaseBlock(Material materialIn, String registryName) {
-    super(materialIn);
-    this.setRegistryName(registryName);
-    this.setUnlocalizedName(this.getRegistryName().toString());
-  }
+    protected BaseBlock(Material materialIn, String registryName) {
+        super(materialIn);
+        this.setRegistryName(registryName);
+        this.setUnlocalizedName(this.getRegistryName().toString());
+    }
 }

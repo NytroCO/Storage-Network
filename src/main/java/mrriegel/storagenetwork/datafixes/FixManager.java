@@ -9,12 +9,12 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class FixManager {
 
-  DataFixer fixer;
-  ModFixs fixs;
+    private final DataFixer fixer;
+    private final ModFixs fixs;
 
-  public FixManager() {
-    this.fixer = FMLCommonHandler.instance().getDataFixer();
-    this.fixs = ((CompoundDataFixer) this.fixer).init(StorageNetwork.MODID, 0);
-    this.fixs.registerFix(FixTypes.CHUNK, new ChunkBasedFixer());
-  }
+    public FixManager() {
+        this.fixer = FMLCommonHandler.instance().getDataFixer();
+        this.fixs = ((CompoundDataFixer) this.fixer).init(StorageNetwork.MODID, 0);
+        this.fixs.registerFix(FixTypes.CHUNK, new ChunkBasedFixer());
+    }
 }

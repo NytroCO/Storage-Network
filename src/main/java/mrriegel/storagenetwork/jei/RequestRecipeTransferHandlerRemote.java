@@ -10,25 +10,25 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class RequestRecipeTransferHandlerRemote<C extends Container & IStorageContainer> implements IRecipeTransferHandler<C> {
+class RequestRecipeTransferHandlerRemote<C extends Container & IStorageContainer> implements IRecipeTransferHandler<C> {
 
-  Class<C> clazz;
+    private final Class<C> clazz;
 
-  public RequestRecipeTransferHandlerRemote(Class<C> clazz) {
-    this.clazz = clazz;
-  }
-
-  @Override
-  public Class<C> getContainerClass() {
-    return clazz;
-  }
-
-  @Override
-  public IRecipeTransferError transferRecipe(Container container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
-    if (doTransfer) {
-      NBTTagCompound nbt = RequestRecipeTransferHandler.recipeToTag(container, recipeLayout);
-      PacketRegistry.INSTANCE.sendToServer(new RecipeMessage(nbt));
+    public RequestRecipeTransferHandlerRemote(Class<C> clazz) {
+        this.clazz = clazz;
     }
-    return null;
-  }
+
+    @Override
+    public Class<C> getContainerClass() {
+        return clazz;
+    }
+
+    @Override
+    public IRecipeTransferError transferRecipe(Container container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
+        if (doTransfer) {
+            NBTTagCompound nbt = RequestRecipeTransferHandler.recipeToTag(container, recipeLayout);
+            PacketRegistry.INSTANCE.sendToServer(new RecipeMessage(nbt));
+        }
+        return null;
+    }
 }
